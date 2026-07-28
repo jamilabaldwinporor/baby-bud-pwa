@@ -1,0 +1,2136 @@
+?<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Baby Bud AI Pro</title>
+  <meta name="description" content="AI Parenting Companion for New Parents">
+  <meta name="theme-color" content="#3C0266">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Baby Bud AI">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #3C0266;
+      --bg-secondary: #5B0A8A;
+      --heading-color: #A3FFE0;
+      --btn-from: #818CF8;
+      --btn-to: #6366F1;
+      --card-bg: rgba(255,255,255,0.95);
+      --text-primary: #1A0033;
+      --text-secondary: #636E72;
+      --accent-teal: #14B8A6;
+      --baby-icon-bg: #5EEAD4;
+      --baby-icon-sprout: #22C55E;
+      --baby-icon-face: #1A0033;
+    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); min-height: 100vh; color: var(--text-primary); }
+
+    .screen { display: none; min-height: 100vh; padding: 20px; padding-bottom: 80px; }
+    .screen.active { display: block; }
+
+    .splash { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; }
+    .splash .logo { font-size: 80px; margin-bottom: 20px; animation: pulse 2s infinite; }
+    .splash h1 { font-size: 28px; color: #A3FFE0; margin-bottom: 8px; }
+    .splash p { font-size: 16px; color: rgba(163,255,224,0.8); }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+    .header { padding: 20px 0; }
+    .header h2 { font-size: 26px; color: #A3FFE0; }
+    .header p { font-size: 14px; color: rgba(163,255,224,0.8); }
+    .back-btn { background: none; border: none; font-size: 18px; color: #A3FFE0; cursor: pointer; margin-bottom: 10px; }
+
+    .card { background: rgba(255,255,255,0.95); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 16px; cursor: pointer; transition: transform 0.2s; }
+    .card:hover { transform: translateY(-2px); }
+    .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; background: rgba(20,184,166,0.15); }
+    .card-content { flex: 1; }
+    .card-title { font-size: 12px; color: #4338CA; }
+    .card-value { font-size: 18px; font-weight: bold; color: #1E1B4B; }
+
+    .form-card { background: rgba(255,255,255,0.95); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #134E4A; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: none; border-radius: 12px; background: #CCFBF1; font-size: 16px; }
+    .form-group textarea { height: 80px; resize: none; }
+
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; color: #fff; cursor: pointer; margin-top: 8px; }
+    .btn-teal { background: linear-gradient(135deg,#818CF8,#6366F1); }
+    .btn-pink { background: #FD79A8; }
+    .btn-purple { background: #A29BFE; }
+    .btn-blue { background: #74B9FF; }
+    .btn-cyan { background: #00CEC9; }
+    .btn-yellow { background: #F8E6A0; color: #2D3436; }
+
+    .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+    .quick-btn { background: rgba(255,255,255,0.3); border: none; border-radius: 12px; padding: 16px 8px; text-align: center; cursor: pointer; transition: background 0.2s; }
+    .quick-btn:hover { background: rgba(255,255,255,0.5); }
+    .quick-btn .icon { font-size: 28px; display: block; margin-bottom: 4px; }
+    .quick-btn .label { font-size: 10px; color: #fff; }
+
+    .chat-container { display: flex; flex-direction: column; height: calc(100vh - 200px); }
+    .messages { flex: 1; overflow-y: auto; padding: 10px 0; }
+    .message { max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 10px; line-height: 1.4; font-size: 14px; }
+    .message.user { background: linear-gradient(135deg,#818CF8,#6366F1); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .message.assistant { background: #fff; color: #2D3436; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .save-btn { background: none; border: none; font-size: 12px; color: #636E72; cursor: pointer; margin-top: 6px; }
+
+    .input-bar { display: flex; gap: 8px; padding: 10px 0; }
+    .input-bar input { flex: 1; padding: 12px 16px; border: none; border-radius: 24px; background: rgba(255,255,255,0.8); font-size: 14px; }
+    .input-bar button { width: 44px; height: 44px; border-radius: 50%; border: none; background: linear-gradient(135deg,#818CF8,#6366F1); font-size: 18px; cursor: pointer; color: #fff; }
+
+    .type-selector { display: flex; gap: 10px; margin-bottom: 16px; }
+    .type-btn { flex: 1; padding: 16px; border: none; border-radius: 12px; background: #fff; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .type-btn.active { background: linear-gradient(135deg,#818CF8,#6366F1); color: #fff; }
+    .type-btn .icon { font-size: 28px; display: block; margin-bottom: 4px; }
+
+    .quick-durations { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .duration-chip { padding: 8px 16px; border-radius: 20px; background: #fff; border: none; cursor: pointer; font-size: 14px; }
+    .duration-chip.active { background: linear-gradient(135deg,#818CF8,#6366F1); color: #fff; }
+
+    .milestone-card { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+    .milestone-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .milestone-icon { width: 40px; height: 40px; border-radius: 20px; background: linear-gradient(135deg,#5EEAD4,#14B8A6); display: flex; align-items: center; justify-content: center; }
+    .milestone-title { font-weight: 600; color: #7C3AED; }
+    .milestone-age { font-size: 12px; color: #636E72; }
+    .milestone-desc { font-size: 13px; color: #636E72; margin-bottom: 8px; }
+    .activity-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #636E72; margin-bottom: 4px; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); display: flex; justify-content: space-around; padding: 10px 0; padding-bottom: 16px; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+    .nav-item { text-align: center; cursor: pointer; background: none; border: none; }
+    .nav-item .icon { font-size: 24px; display: block; }
+    .nav-item .label { font-size: 10px; color: #636E72; }
+    .nav-item.active .label { color: #6366F1; font-weight: 600; }
+
+    .section-title { font-size: 18px; font-weight: 600; color: #A3FFE0; margin: 16px 0 12px; }
+    .age-card { background: linear-gradient(135deg,#818CF8,#6366F1); border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px; }
+    .age-card .label { font-size: 14px; color: rgba(255,255,255,0.9); }
+    .age-card .value { font-size: 36px; font-weight: bold; color: #fff; }
+
+    .toggle-bar { display: flex; background: #fff; border-radius: 12px; padding: 4px; margin-bottom: 16px; }
+    .toggle-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; background: transparent; font-weight: 600; cursor: pointer; }
+    .toggle-btn.active { background: linear-gradient(135deg,#818CF8,#6366F1); color: #fff; }
+
+    .feature-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+    .feature-item .check { font-size: 16px; }
+
+    .profile-card { background: #fff; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 16px; }
+    .avatar { width: 80px; height: 80px; border-radius: 40px; background: linear-gradient(135deg,#5EEAD4,#14B8A6,#0D9488); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 12px; position: relative; box-shadow: 0 4px 15px rgba(20,184,166,0.3); }
+
+    .menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #fff; cursor: pointer; }
+    .menu-item:first-child { border-radius: 16px 16px 0 0; }
+    .menu-item:last-child { border-radius: 0 0 16px 16px; border: none; }
+    .menu-item .text { flex: 1; font-size: 14px; }
+
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+    .suggestion-chip { background: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12px; cursor: pointer; border: none; }
+
+    .empty { text-align: center; padding: 40px 20px; }
+    .empty .icon { font-size: 60px; margin-bottom: 16px; }
+    .empty h3 { font-size: 18px; margin-bottom: 8px; }
+    .empty p { font-size: 14px; color: #636E72; }
+
+    .btn-hour { padding: 8px 14px; border: 2px solid #E2E8F0; border-radius: 10px; background: #fff; cursor: pointer; font-size: 14px; transition: all .2s }
+    .btn-hour:hover { border-color: #818CF8 }
+    .btn-hour.btn-active { background: linear-gradient(135deg,#818CF8,#6366F1); color: #fff; border-color: #6366F1 }
+    .btn-hour.btn-active:hover { opacity: .9 }
+
+    .food-item { display:flex; align-items:center; gap:12px; padding:12px; background:#F8FAFC; border-radius:10px; margin-bottom:8px }
+    .food-item .food-emoji { font-size:28px }
+    .food-item .food-info h4 { font-size:14px; margin-bottom:2px }
+    .food-item .food-info p { font-size:12px; color:#636E72 }
+
+    .schedule-row { display:flex; align-items:center; gap:10px; padding:10px; background:#F8FAFC; border-radius:10px; margin-bottom:8px; font-size:14px }
+    .schedule-row .s-time { font-weight:700; color:#6366F1; min-width:60px }
+    .schedule-row .s-emoji { font-size:20px }
+
+    .time-row { display:flex; gap:8px; align-items:center }
+    .time-row input { padding:10px; border:2px solid #E2E8F0; border-radius:8px; font-size:14px; width:130px }
+    .time-row button { background:#E53E3E; color:#fff; border:none; border-radius:8px; padding:8px 12px; cursor:pointer; font-size:16px }
+
+    #toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); padding:10px 24px; border-radius:12px; font-size:13px; font-weight:600; z-index:999; opacity:0; transition:opacity 0.3s; pointer-events:none; max-width:90%; text-align:center }
+    #toast.show { opacity:1 }
+    #toast.success { background:#10B981; color:#fff }
+    #toast.info { background:#6366F1; color:#fff }
+
+    .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+    .stat-label { color: #636E72; }
+    .stat-value { font-weight: 600; }
+
+    .counter { text-align: center; font-size: 12px; color: #636E72; padding: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- SPLASH -->
+  <div id="splash" class="screen active splash">
+    <div class="logo">
+      <div style="position:relative;display:inline-block">
+        <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#5EEAD4,#14B8A6,#0D9488);display:flex;align-items:center;justify-content:center;font-size:52px;box-shadow:0 4px 20px rgba(20,184,166,0.4);border:4px solid rgba(255,255,255,0.5)">😊</div>
+        <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:32px">🌱</div>
+      </div>
+    </div>
+    <h1>Baby Bud AI Pro</h1>
+    <p>Growing Together, One Milestone at a Time</p>
+    <div style="margin-top:12px;background:linear-gradient(135deg,#818CF8,#6366F1);padding:6px 20px;border-radius:20px;display:inline-block"><span style="color:#fff;font-size:14px;font-weight:600">💎 PRO UNLOCKED</span></div>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div id="onboarding" class="screen">
+    <div class="header" style="text-align:center">
+      <h2>Welcome to Baby Bud!</h2>
+      <p>Tell us about your little one</p>
+    </div>
+    <div class="form-card">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="position:relative;display:inline-block;cursor:pointer" onclick="document.getElementById('onboardPhotoInput').click()">
+          <div id="onboardAvatar" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#5EEAD4,#14B8A6,#0D9488);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 4px 15px rgba(20,184,166,0.3);border:3px solid rgba(255,255,255,0.5)">😊</div>
+          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:26px">🌱</div>
+          <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#818CF8,#6366F1);display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid #fff">📷</div>
+        </div>
+        <input type="file" id="onboardPhotoInput" accept="image/*" style="display:none" onchange="uploadOnboardPhoto(event)">
+        <div style="color:#636E72;margin-top:8px;font-size:14px">Add Photo</div>
+      </div>
+      <div class="form-group">
+        <label>Baby's Name</label>
+        <input type="text" id="babyName" placeholder="Enter name">
+      </div>
+      <div class="form-group">
+        <label>Birthday</label>
+        <div style="display:flex;gap:8px">
+          <input type="number" id="birthMonth" placeholder="MM" min="1" max="12" style="width:33%">
+          <input type="number" id="birthDay" placeholder="DD" min="1" max="31" style="width:33%">
+          <input type="number" id="birthYear" placeholder="YYYY" style="width:34%">
+        </div>
+      </div>
+      <button class="btn btn-teal" onclick="startApp()">Let's Get Started!</button>
+      <button class="btn" style="background:#636E72;margin-top:8px" onclick="skipOnboarding()">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="screen">
+    <div class="header" style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <h2 id="greeting">Good Morning,</h2>
+        <h2 id="greetingName" style="font-size:32px">Little One</h2>
+        <p>Here's how your baby is doing today</p>
+      </div>
+      <button onclick="navigate('settings')" style="background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;flex-shrink:0">⚙️</button>
+    </div>
+
+    <div class="card" onclick="navigate('feedingLog')">
+      <div class="card-icon" style="background:#74B9FF20">🍼</div>
+      <div class="card-content">
+        <div class="card-title">Next Feeding</div>
+        <div class="card-value" id="nextFeeding">No data</div>
+      </div>
+      <span style="color:#636E72">›</span>
+    </div>
+
+    <div class="card" onclick="navigate('napLog')">
+      <div class="card-icon" style="background:#A29BFE20">😴</div>
+      <div class="card-content">
+        <div class="card-title">Naps Today</div>
+        <div class="card-value" id="napsToday">0 naps</div>
+      </div>
+      <span style="color:#636E72">›</span>
+    </div>
+
+    <div class="card" onclick="navigate('tummyTimeLog')" id="tummyTimeCard">
+      <div class="card-icon" style="background:#00CEC920">🧸</div>
+      <div class="card-content">
+        <div class="card-title">Tummy Time Today</div>
+        <div class="card-value" id="tummyTimeToday">0 minutes</div>
+      </div>
+      <span style="color:#636E72">›</span>
+    </div>
+
+    <div class="card" onclick="navigate('diaperLog')">
+      <div class="card-icon" style="background:#FD79A820">🚼</div>
+      <div class="card-content">
+        <div class="card-title">Last Diaper</div>
+        <div class="card-value" id="lastDiaper">No data</div>
+      </div>
+      <span style="color:#636E72">›</span>
+    </div>
+
+    <div class="section-title">Quick Log</div>
+    <div class="quick-actions">
+      <button class="quick-btn" onclick="navigate('feedingLog')"><span class="icon">🍼</span><span class="label">Feed</span></button>
+      <button class="quick-btn" onclick="navigate('napLog')"><span class="icon">😴</span><span class="label">Nap</span></button>
+      <button class="quick-btn" onclick="navigate('diaperLog')"><span class="icon">🚼</span><span class="label">Diaper</span></button>
+      <button class="quick-btn" onclick="navigate('tummyTimeLog')" id="tummyTimeBtn"><span class="icon">🧸</span><span class="label">Tummy Time</span></button>
+      <button class="quick-btn" onclick="navigate('feedingGuide')"><span class="icon">🥦</span><span class="label">Food Guide</span></button>
+    </div>
+
+    <!-- AI Ask Widget -->
+    <div onclick="navigate('askAnything')" style="margin-top:8px;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--btn-from),var(--btn-to));cursor:pointer;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,0.1)">
+      <div style="display:flex;align-items:center;gap:12px;color:#fff">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px">🌱</div>
+        <div><div style="font-weight:bold;font-size:14px">Ask Baby Bud AI</div><div style="font-size:12px;opacity:0.8">Instant parenting guidance</div></div>
+      </div>
+      <span style="font-size:12px;font-weight:bold;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.2);color:#fff">Ask →</span>
+    </div>
+
+    <!-- Daily Planner -->
+    <div style="margin-top:12px;padding:16px;border-radius:16px;background:rgba(255,255,255,0.95);box-shadow:0 2px 10px rgba(0,0,0,0.1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">📅</span><div><div style="font-weight:bold;font-size:14px;color:#1E1B4B">Suggested Daily Planner</div><div style="font-size:11px;color:#636E72" id="plannerSubtitle">Based on baby's age</div></div></div>
+        <span style="font-size:10px;font-weight:bold;padding:3px 8px;border-radius:12px;background:#FEF3C7;color:#92400E" id="plannerBadge">PRO</span>
+      </div>
+      <div id="dailyPlannerList"></div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="navigate('home')"><span class="icon">🏠</span><span class="label">Home</span></button>
+      <button class="nav-item" onclick="navigate('askAnything')"><span class="icon">💬</span><span class="label">Ask</span></button>
+      <button class="nav-item" onclick="navigate('milestones')"><span class="icon">⭐</span><span class="label">Milestones</span></button>
+      <button class="nav-item" onclick="navigate('profile')"><span class="icon">👤</span><span class="label">Profile</span></button>
+    </div>
+  </div>
+
+  <!-- ASK ANYTHING -->
+  <div id="askAnything" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header" style="display:flex;justify-content:space-between;align-items:center">
+      <h2>Ask Anything</h2>
+      <span class="counter" id="questionsLeft">10 left today</span>
+    </div>
+    <!-- AI Coaching Chips -->
+    <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 0;margin-bottom:8px;white-space:nowrap">
+      <button onclick="quickAsk('Analyze sleep patterns and give AI sleep coaching for a ' + getBabyAgeMonths() + '-month-old')" style="padding:6px 14px;border-radius:20px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#C7D2FE;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer">🌙 AI Sleep Coach</button>
+      <button onclick="quickAsk('Provide AI feeding coaching for a ' + getBabyAgeMonths() + '-month-old baby')" style="padding:6px 14px;border-radius:20px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#DDD6FE;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer">🍼 Feeding Coach</button>
+      <button onclick="quickAsk('Detect growth and routine patterns based on my logged feeding and nap history')" style="padding:6px 14px;border-radius:20px;background:rgba(20,184,166,0.15);border:1px solid rgba(20,184,166,0.3);color:#99F6E4;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer">🔍 Pattern Detection</button>
+    </div>
+    <div class="chat-container">
+      <div class="messages" id="chatMessages"></div>
+      <div class="input-bar">
+        <input type="text" id="chatInput" placeholder="Ask about your baby..." onkeypress="if(event.key==='Enter')askAI()">
+        <button onclick="askAI()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDING LOG -->
+  <div id="feedingLog" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header"><h2>Log Feeding</h2></div>
+    <div class="type-selector">
+      <button class="type-btn active" onclick="selectFeedingType(this,'bottle')"><span class="icon">🍼</span>Bottle</button>
+      <button class="type-btn" onclick="selectFeedingType(this,'breast')"><span class="icon">🤱</span>Breast</button>
+      <button class="type-btn" onclick="selectFeedingType(this,'solid')"><span class="icon">🍽️</span>Solid</button>
+    </div>
+    <div class="form-card">
+      <div class="form-group">
+        <label>Amount (oz or minutes)</label>
+        <input type="number" id="feedingAmount" placeholder="Enter amount">
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="feedingNotes" placeholder="Add any notes..."></textarea>
+      </div>
+      <button class="btn btn-blue" onclick="logFeeding()">Log Feeding</button>
+    </div>
+  </div>
+
+  <!-- NAP LOG -->
+  <div id="napLog" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header"><h2>Log Nap</h2></div>
+    <div class="form-card">
+      <div class="form-group">
+        <label>Duration (minutes)</label>
+        <div class="quick-durations">
+          <button class="duration-chip" onclick="selectDuration(this,30)">30m</button>
+          <button class="duration-chip" onclick="selectDuration(this,45)">45m</button>
+          <button class="duration-chip" onclick="selectDuration(this,60)">60m</button>
+          <button class="duration-chip" onclick="selectDuration(this,90)">90m</button>
+          <button class="duration-chip" onclick="selectDuration(this,120)">2h</button>
+        </div>
+        <input type="number" id="napDuration" placeholder="Or enter custom duration">
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="napNotes" placeholder="Add any notes..."></textarea>
+      </div>
+      <button class="btn btn-purple" onclick="logNap()">Log Nap</button>
+    </div>
+  </div>
+
+  <!-- DIAPER LOG -->
+  <div id="diaperLog" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header"><h2>Log Diaper</h2></div>
+    <div class="type-selector">
+      <button class="type-btn active" onclick="selectDiaperType(this,'wet')"><span class="icon">💧</span>Wet</button>
+      <button class="type-btn" onclick="selectDiaperType(this,'dirty')"><span class="icon">💩</span>Dirty</button>
+      <button class="type-btn" onclick="selectDiaperType(this,'both')"><span class="icon">🚼</span>Both</button>
+    </div>
+    <div class="form-card">
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="diaperNotes" placeholder="Add any notes..."></textarea>
+      </div>
+      <button class="btn btn-pink" onclick="logDiaper()">Log Diaper</button>
+    </div>
+  </div>
+
+  <!-- TUMMY TIME LOG -->
+  <div id="tummyTimeLog" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header"><h2>Log Tummy Time</h2></div>
+    <div class="form-card">
+      <div class="form-group">
+        <label>Duration (minutes)</label>
+        <div class="quick-durations">
+          <button class="duration-chip" onclick="selectDuration(this,5)">5m</button>
+          <button class="duration-chip" onclick="selectDuration(this,10)">10m</button>
+          <button class="duration-chip" onclick="selectDuration(this,15)">15m</button>
+          <button class="duration-chip" onclick="selectDuration(this,20)">20m</button>
+          <button class="duration-chip" onclick="selectDuration(this,30)">30m</button>
+        </div>
+        <input type="number" id="tummyTimeDuration" placeholder="Or enter custom duration">
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="tummyTimeNotes" placeholder="Add any notes..."></textarea>
+      </div>
+      <button class="btn btn-cyan" onclick="logTummyTime()">Log Tummy Time</button>
+    </div>
+  </div>
+
+  <!-- MILESTONES -->
+  <div id="milestones" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header"><h2>Milestone Tracker</h2></div>
+    <div class="age-card">
+      <div class="label">Current Age</div>
+      <div class="value" id="babyAge">0 months</div>
+    </div>
+    <div class="section-title">Upcoming Milestones</div>
+    <div id="milestoneList"></div>
+  </div>
+
+  <!-- SAVED ANSWERS -->
+  <div id="savedAnswers" class="screen">
+    <button class="back-btn" onclick="navigate('profile')">← Back</button>
+    <div class="header"><h2>Saved Answers</h2></div>
+    <div id="savedAnswersList"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="profile" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header" style="display:flex;justify-content:space-between;align-items:center">
+      <h2>Profile</h2>
+      <button onclick="navigate('settings')" style="background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;flex-shrink:0">⚙️</button>
+    </div>
+    <div class="profile-card">
+      <div style="position:relative;display:inline-block;cursor:pointer" onclick="document.getElementById('photoInput').click()">
+        <div class="avatar" id="profileAvatar">😊</div>
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:22px">🌱</div>
+        <div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#818CF8,#6366F1);display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid #fff">📷</div>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="uploadPhoto(event)">
+      <h3 id="profileName">Little One</h3>
+      <p id="profileAge" style="color:#636E72;margin:4px 0 12px">0 months old</p>
+      <span style="background:linear-gradient(135deg,#818CF8,#6366F1);padding:6px 20px;border-radius:20px;display:inline-block"><span style="color:#fff;font-size:13px;font-weight:600">💎 PRO</span></span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <button class="profile-btn" onclick="navigate('savedAnswers')" style="background:rgba(255,255,255,0.95);border:none;border-radius:14px;padding:18px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:28px">💾</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Saved Answers</span>
+      </button>
+      <button class="profile-btn" onclick="navigate('children')" style="background:rgba(255,255,255,0.95);border:none;border-radius:14px;padding:18px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:28px">👨‍👩‍👧‍👦</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">My Children</span>
+      </button>
+      <button class="profile-btn" onclick="navigate('memoryJournal')" style="background:rgba(255,255,255,0.95);border:none;border-radius:14px;padding:18px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:28px">📖</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Memory Journal</span>
+      </button>
+      <button class="profile-btn" onclick="navigate('feedingGuide')" style="background:rgba(255,255,255,0.95);border:none;border-radius:14px;padding:18px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:28px">🥦</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Feeding Guide</span>
+      </button>
+      <button class="profile-btn" onclick="navigate('scheduleNotif')" style="background:rgba(255,255,255,0.95);border:none;border-radius:14px;padding:18px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:28px">⏰</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Reminders</span>
+      </button>
+      <button class="profile-btn" onclick="navigate('growthCharts')" style="background:rgba(255,255,255,0.95);border:none;border-radius:14px;padding:18px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:28px">📊</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Growth Charts</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MULTIPLE CHILDREN -->
+  <div id="children" class="screen">
+    <button class="back-btn" onclick="navigate('profile')">← Back</button>
+    <div class="header"><h2>My Children</h2></div>
+    <div id="childrenList"></div>
+    <button class="btn btn-teal" style="margin-top:12px" onclick="showAddChild()">➕ Add Child</button>
+
+    <div id="addChildModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center">
+      <div class="form-card" style="width:90%;max-width:350px">
+        <h3 style="margin-bottom:16px">Add Child</h3>
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="childName" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+          <label>Birthday</label>
+          <div style="display:flex;gap:8px">
+            <input type="number" id="childMonth" placeholder="MM" min="1" max="12" style="width:33%">
+            <input type="number" id="childDay" placeholder="DD" min="1" max="31" style="width:33%">
+            <input type="number" id="childYear" placeholder="YYYY" style="width:34%">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-teal" style="flex:1" onclick="addChild()">Save</button>
+          <button class="btn" style="flex:1;background:#636E72" onclick="closeAddChildModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMORY JOURNAL -->
+  <div id="memoryJournal" class="screen">
+    <button class="back-btn" onclick="navigate('profile')">← Back</button>
+    <div class="header"><h2>📖 Memory Journal</h2></div>
+    <p style="color:#636E72;margin-bottom:16px;text-align:center">Capture precious moments and memories!</p>
+
+    <button class="btn btn-teal" style="width:100%;margin-bottom:16px" onclick="openAddMemory()">📸 Add New Memory</button>
+
+    <div id="memoryList"></div>
+
+    <!-- Add Memory Modal -->
+    <div id="addMemoryModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center">
+      <div class="form-card" style="width:90%;max-width:350px;max-height:80vh;overflow-y:auto">
+        <h3 style="margin-bottom:16px">New Memory</h3>
+
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="memoryTitle" placeholder="First smile, first steps...">
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select id="memoryCategory" class="form-group" style="width:100%;padding:12px;border:2px solid #E2E8F0;border-radius:10px;font-size:16px">
+            <option value="milestone">🏆 Milestone</option>
+            <option value="first">👶 First Time</option>
+            <option value="funny">😄 Funny Moment</option>
+            <option value="sweet">💕 Sweet Moment</option>
+            <option value="photo">📷 Photo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="memoryDate">
+        </div>
+
+        <div class="form-group">
+          <label>Note</label>
+          <textarea id="memoryNote" rows="3" style="width:100%;padding:12px;border:2px solid #E2E8F0;border-radius:10px;font-size:14px;resize:none;font-family:inherit" placeholder="Tell the story..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Photo</label>
+          <input type="file" id="memoryPhotoInput" accept="image/*" style="width:100%">
+        </div>
+
+        <div id="memoryPhotoPreview" style="display:none;margin-bottom:12px;text-align:center">
+          <img id="memoryPreviewImg" style="max-width:100%;max-height:200px;border-radius:12px">
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-teal" style="flex:1" onclick="saveMemory()">Save Memory</button>
+          <button class="btn" style="flex:1;background:#636E72" onclick="closeAddMemory()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Memory Modal -->
+    <div id="viewMemoryModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center">
+      <div class="form-card" style="width:90%;max-width:350px;max-height:80vh;overflow-y:auto">
+        <h3 id="viewMemTitle" style="margin-bottom:4px"></h3>
+        <p id="viewMemDate" style="color:#636E72;margin-bottom:12px;font-size:14px"></p>
+        <div id="viewMemPhoto" style="display:none;text-align:center;margin-bottom:12px">
+          <img id="viewMemPhotoImg" style="max-width:100%;max-height:250px;border-radius:12px">
+        </div>
+        <p id="viewMemNote" style="margin-bottom:16px;line-height:1.6"></p>
+        <div style="display:flex;gap:10px">
+          <button class="btn" style="flex:1;background:#636E72" onclick="closeViewMemory()">Close</button>
+          <button class="btn" style="flex:1;background:#E53E3E" onclick="deleteMemory()">🗑️ Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBSCRIPTION -->
+  <div id="subscription" class="screen">
+    <button class="back-btn" onclick="navigate('profile')">← Back</button>
+    <div class="header"><h2>Upgrade to Pro</h2></div>
+    <div style="background:linear-gradient(135deg,#818CF8,#6366F1);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px">
+      <div style="font-size:48px;margin-bottom:8px">💎</div>
+      <h2 style="color:#fff">Baby Bud Pro</h2>
+      <p style="color:rgba(255,255,255,0.9)">Try free for 3 days — $0 today!</p>
+    </div>
+    <!-- 3-Day Trial Timeline -->
+    <div style="background:#1E1B4B;border-radius:16px;padding:16px;margin-bottom:16px;color:#fff">
+      <div style="font-weight:bold;font-size:13px;color:#FBBF24;margin-bottom:8px">How Your 3-Day Free Trial Works:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-size:11px">
+        <div style="padding:10px;border-radius:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1)"><div style="font-weight:bold;color:#FBBF24">Day 1</div><div style="font-size:10px;margin-top:2px">$0 Charged</div><div style="font-size:10px;color:#5EEAD4">Full Pro Access</div></div>
+        <div style="padding:10px;border-radius:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1)"><div style="font-weight:bold;color:#FBBF24">Day 3</div><div style="font-size:10px;margin-top:2px">Billing Reminder</div><div style="font-size:10px;color:#FBBF24">Notification Sent 🔔</div></div>
+        <div style="padding:10px;border-radius:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1)"><div style="font-weight:bold;color:#34D399">Day 4</div><div style="font-size:10px;margin-top:2px">Billed $9.99/mo</div><div style="font-size:10px">Cancel Anytime</div></div>
+      </div>
+    </div>
+    <div class="toggle-bar">
+      <button class="toggle-btn" onclick="togglePricing(false)">Monthly</button>
+      <button class="toggle-btn active" onclick="togglePricing(true)">Yearly</button>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:20px;text-align:center;margin-bottom:16px">
+      <div id="priceDisplay" style="font-size:32px;font-weight:bold">$79.99/year</div>
+      <div style="color:#00B894;font-size:14px;margin-top:4px">Save $40/year</div>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:12px">
+      <h3 style="margin-bottom:12px">AI Features</h3>
+      <div class="feature-item"><span class="check">✅</span>Unlimited AI questions</div>
+      <div class="feature-item"><span class="check">✅</span>AI Sleep & Feeding Coach</div>
+      <div class="feature-item"><span class="check">✅</span>Smart Pattern Detection</div>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:12px">
+      <h3 style="margin-bottom:12px">Tracking Features</h3>
+      <div class="feature-item"><span class="check">✅</span>Growth Charts with Percentiles</div>
+      <div class="feature-item"><span class="check">✅</span>Baby Feeding Suggestions by Month</div>
+      <div class="feature-item"><span class="check">✅</span>Suggested Daily Planner</div>
+      <div class="feature-item"><span class="check">✅</span>Weekly Reports & PDF Export</div>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:12px">
+      <h3 style="margin-bottom:12px">Family Features</h3>
+      <div class="feature-item"><span class="check">✅</span>Multiple Children (up to 5)</div>
+
+    </div>
+    <button class="btn btn-teal" onclick="showToast('🎉 3-Day Free Trial Started! $0 charged today.')">Start 3-Day Free Trial ($0 Today)</button>
+    <div style="text-align:center;font-size:11px;color:#636E72;margin-top:8px">🛡️ No charge for 3 days. Reminder sent on Day 3. Cancel anytime before Day 4.</div>
+  </div>
+
+  <!-- GROWTH CHARTS -->
+  <div id="growthCharts" class="screen">
+    <button class="back-btn" onclick="navigate('profile')">← Back</button>
+    <div class="header"><h2>Growth Charts</h2></div>
+    <div class="toggle-bar">
+      <button class="toggle-btn active" onclick="selectChart(this,'weight')">Weight</button>
+      <button class="toggle-btn" onclick="selectChart(this,'height')">Height</button>
+      <button class="toggle-btn" onclick="selectChart(this,'head')">Head</button>
+    </div>
+    <div class="form-card" style="padding:16px">
+      <canvas id="growthChart" width="400" height="250"></canvas>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+      <div class="card" style="flex-direction:column;align-items:flex-start">
+        <div class="card-title">Weight</div>
+        <div class="card-value" id="weightVal">-- lbs</div>
+        <div style="font-size:11px;color:#636E72" id="weightPerc">Add data</div>
+      </div>
+      <div class="card" style="flex-direction:column;align-items:flex-start">
+        <div class="card-title">Height</div>
+        <div class="card-value" id="heightVal">-- inches</div>
+        <div style="font-size:11px;color:#636E72" id="heightPerc">Add data</div>
+      </div>
+      <div class="card" style="flex-direction:column;align-items:flex-start">
+        <div class="card-title">Head</div>
+        <div class="card-value" id="headVal">-- inches</div>
+        <div style="font-size:11px;color:#636E72" id="headPerc">Add data</div>
+      </div>
+      <div class="card" style="flex-direction:column;align-items:flex-start">
+        <div class="card-title">BMI</div>
+        <div class="card-value" id="bmiVal">--</div>
+        <div style="font-size:11px;color:#636E72">Normal range</div>
+      </div>
+    </div>
+    <button class="btn btn-teal" style="margin-top:12px" onclick="showAddMeasurement()">➕ Add Measurement</button>
+
+    <!-- Add Measurement Modal -->
+    <div id="measurementModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;display:none;align-items:center;justify-content:center">
+      <div class="form-card" style="width:90%;max-width:350px">
+        <h3 style="margin-bottom:16px">Add Measurement</h3>
+        <div class="form-group">
+          <label>Weight (lbs)</label>
+          <input type="number" id="mWeight" placeholder="e.g. 14.2" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>Height (inches)</label>
+          <input type="number" id="mHeight" placeholder="e.g. 24.5" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>Head circumference (inches)</label>
+          <input type="number" id="mHead" placeholder="e.g. 16.2" step="0.1">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-teal" style="flex:1" onclick="saveMeasurement()">Save</button>
+          <button class="btn" style="flex:1;background:#636E72" onclick="closeMeasurementModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px" id="measurementHistory"></div>
+  </div>
+
+  <!-- FEEDING GUIDE -->
+  <div id="feedingGuide" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header"><h2>🥦 Feeding Guide</h2></div>
+    <p style="color:#636E72;margin-bottom:16px;text-align:center">Age-appropriate foods and schedules</p>
+
+    <div id="feedingAgeNote" style="background:linear-gradient(135deg,#FBBF24,#F59E0B);color:#78350F;border-radius:12px;padding:12px;margin-bottom:16px;text-align:center;font-size:14px;font-weight:600"></div>
+
+    <div id="foodList"></div>
+
+    <div class="form-card" style="margin-top:16px">
+      <h3 style="margin-bottom:12px">📋 Sample Daily Schedule</h3>
+      <div id="sampleSchedule"></div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE & NOTIFICATIONS -->
+  <div id="scheduleNotif" class="screen">
+    <button class="back-btn" onclick="navigate('profile')">← Back</button>
+    <div class="header"><h2>⏰ Schedule & Notifications</h2></div>
+    <p style="color:#636E72;margin-bottom:16px;text-align:center">Set reminders for feeding and nap times</p>
+
+    <div id="notifPermission" style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:12px;padding:12px;margin-bottom:16px;text-align:center;display:none">
+      <p style="font-size:13px;color:#78350F;margin-bottom:8px">Notifications are blocked. Please enable them in your browser.</p>
+    </div>
+
+    <!-- Feeding Reminder -->
+    <div class="form-card">
+      <h3 style="margin-bottom:12px">🍼 Feeding Reminder</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <label style="position:relative;display:inline-block;width:52px;height:28px;cursor:pointer">
+          <input type="checkbox" id="feedingReminderOn" style="opacity:0;width:0;height:0" onchange="toggleFeedingReminder()">
+          <span style="position:absolute;top:0;left:0;right:0;bottom:0;background:#CBD5E0;border-radius:14px;transition:.3s"></span>
+          <span id="feedingToggleDot" style="position:absolute;height:22px;width:22px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s"></span>
+        </label>
+        <span style="font-weight:600">Enable Reminder</span>
+      </div>
+      <div id="feedingReminderOptions" style="display:none">
+        <div class="form-group">
+          <label>Remind every</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-hour" onclick="setFeedInterval(2,this)">2 hrs</button>
+            <button class="btn-hour" onclick="setFeedInterval(3,this)">3 hrs</button>
+            <button class="btn-hour btn-active" onclick="setFeedInterval(4,this)">4 hrs</button>
+            <button class="btn-hour" onclick="setFeedInterval(5,this)">5 hrs</button>
+            <button class="btn-hour" onclick="setFeedInterval(6,this)">6 hrs</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Or set specific times</label>
+          <div id="feedingTimes" style="display:flex;flex-direction:column;gap:8px"></div>
+          <button class="btn btn-teal" style="margin-top:8px;width:auto;padding:8px 16px;font-size:14px" onclick="addFeedingTime()">+ Add Time</button>
+        </div>
+        <div style="background:#F0FDF4;border-radius:8px;padding:10px;margin-top:8px">
+          <p style="font-size:13px;color:#166534" id="feedingScheduleText">Next reminder: --</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nap Reminder -->
+    <div class="form-card" style="margin-top:12px">
+      <h3 style="margin-bottom:12px">😴 Nap Reminder</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <label style="position:relative;display:inline-block;width:52px;height:28px;cursor:pointer">
+          <input type="checkbox" id="napReminderOn" style="opacity:0;width:0;height:0" onchange="toggleNapReminder()">
+          <span style="position:absolute;top:0;left:0;right:0;bottom:0;background:#CBD5E0;border-radius:14px;transition:.3s"></span>
+          <span id="napToggleDot" style="position:absolute;height:22px;width:22px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s"></span>
+        </label>
+        <span style="font-weight:600">Enable Reminder</span>
+      </div>
+      <div id="napReminderOptions" style="display:none">
+        <div class="form-group">
+          <label>Remind every</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-hour" onclick="setNapInterval(2,this)">2 hrs</button>
+            <button class="btn-hour" onclick="setNapInterval(3,this)">3 hrs</button>
+            <button class="btn-hour" onclick="setNapInterval(4,this)">4 hrs</button>
+            <button class="btn-hour btn-active" onclick="setNapInterval(5,this)">5 hrs</button>
+            <button class="btn-hour" onclick="setNapInterval(6,this)">6 hrs</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Or set specific times</label>
+          <div id="napTimes" style="display:flex;flex-direction:column;gap:8px"></div>
+          <button class="btn btn-teal" style="margin-top:8px;width:auto;padding:8px 16px;font-size:14px" onclick="addNapTime()">+ Add Time</button>
+        </div>
+        <div style="background:#EFF6FF;border-radius:8px;padding:10px;margin-top:8px">
+          <p style="font-size:13px;color:#1E40AF" id="napScheduleText">Next reminder: --</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Reminders -->
+    <div class="form-card" style="margin-top:12px">
+      <h3 style="margin-bottom:8px">📋 Active Reminders</h3>
+      <div id="activeReminders"><p style="color:#636E72;font-size:14px">No active reminders</p></div>
+      <button class="btn" style="width:100%;background:#E53E3E;margin-top:8px" onclick="clearAllReminders()">Clear All Reminders</button>
+    </div>
+  </div>
+
+
+  <!-- SETTINGS -->
+  <div id="settings" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header"><h2>⚙️ Settings</h2></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <button class="profile-btn" onclick="navigate('themeEditor')" style="background:rgba(255,255,255,0.95);border:none;border-radius:14px;padding:18px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:28px">🎨</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Theme Editor</span>
+      </button>
+      <button class="profile-btn" onclick="navigate('subscription')" style="background:rgba(255,255,255,0.95);border:none;border-radius:14px;padding:18px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+        <span style="font-size:28px">💎</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Subscription</span>
+      </button>
+    </div>
+
+    <!-- Data Management -->
+    <div style="background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;margin-bottom:12px">
+      <h3 style="margin-bottom:12px;color:#1E1B4B">📦 Data Management</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn" style="width:100%;background:#FEF3C7;color:#92400E;font-weight:600" onclick="exportData()">📥 Export All Data</button>
+        <button class="btn" style="width:100%;background:#FEE2E2;color:#991B1B;font-weight:600" onclick="deleteAllData()">🗑️ Delete All Data</button>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div style="background:rgba(255,255,255,0.95);border-radius:16px;padding:16px;margin-bottom:12px">
+      <h3 style="margin-bottom:8px;color:#1E1B4B">ℹ️ About</h3>
+      <p style="font-size:13px;color:#636E72">Baby Bud AI Pro v1.0</p>
+      <p style="font-size:12px;color:#9CA3AF;margin-top:4px">Your AI parenting companion</p>
+    </div>
+
+    <!-- Legal Links -->
+    <div style="background:rgba(255,255,255,0.95);border-radius:16px;padding:16px">
+      <h3 style="margin-bottom:10px;color:#1E1B4B">📜 Legal</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <a href="terms.html" target="_blank" style="display:block;text-decoration:none"><button class="btn" style="width:100%;background:#EDE9FE;color:#5B21B6;font-weight:600">📜 Terms & Conditions</button></a>
+        <a href="privacy.html" target="_blank" style="display:block;text-decoration:none"><button class="btn" style="width:100%;background:#DBEAFE;color:#1E40AF;font-weight:600">🔒 Privacy Policy</button></a>
+        <a href="compliance.html" target="_blank" style="display:block;text-decoration:none"><button class="btn" style="width:100%;background:#D1FAE5;color:#065F46;font-weight:600">🛡️ Data & Compliance</button></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- THEME EDITOR -->
+  <div id="themeEditor" class="screen">
+    <button class="back-btn" onclick="navigate('settings')">← Back</button>
+    <div class="header"><h2>🎨 Theme Editor</h2></div>
+    <p style="color:rgba(163,255,224,0.8);margin-bottom:16px;text-align:center">Customize your app colors!</p>
+
+    <!-- Preview Card -->
+    <div class="form-card" style="margin-bottom:16px;text-align:center">
+      <h3 style="margin-bottom:8px">Preview</h3>
+      <div id="themePreview" style="border-radius:12px;padding:16px;background:var(--bg-primary)">
+        <div style="color:var(--heading-color);font-size:18px;font-weight:bold;margin-bottom:8px">Sample Heading</div>
+        <div style="color:rgba(163,255,224,0.7);font-size:13px;margin-bottom:12px">Sample subtitle text</div>
+        <button id="previewBtn" style="background:linear-gradient(135deg,var(--btn-from),var(--btn-to));color:#fff;border:none;padding:10px 24px;border-radius:10px;font-size:14px;font-weight:600">Sample Button</button>
+      </div>
+    </div>
+
+    <!-- Color Pickers -->
+    <div class="form-card" style="margin-bottom:12px">
+      <h3 style="margin-bottom:12px">Background Colors</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <input type="color" id="themeBgPrimary" value="#3C0266" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Primary Background</div><div style="font-size:12px;color:#636E72">Main background color</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input type="color" id="themeBgSecondary" value="#5B0A8A" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Secondary Background</div><div style="font-size:12px;color:#636E72">Gradient blend color</div></div>
+      </div>
+    </div>
+
+    <div class="form-card" style="margin-bottom:12px">
+      <h3 style="margin-bottom:12px">Text Colors</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <input type="color" id="themeHeading" value="#A3FFE0" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Headings</div><div style="font-size:12px;color:#636E72">Title and heading text</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input type="color" id="themeTextPrimary" value="#1A0033" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Primary Text</div><div style="font-size:12px;color:#636E72">Body text on cards</div></div>
+      </div>
+    </div>
+
+    <div class="form-card" style="margin-bottom:12px">
+      <h3 style="margin-bottom:12px">Button Colors</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <input type="color" id="themeBtnFrom" value="#818CF8" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Button Start</div><div style="font-size:12px;color:#636E72">Gradient start color</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input type="color" id="themeBtnTo" value="#6366F1" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Button End</div><div style="font-size:12px;color:#636E72">Gradient end color</div></div>
+      </div>
+    </div>
+
+    <div class="form-card" style="margin-bottom:12px">
+      <h3 style="margin-bottom:12px">Accent Colors</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <input type="color" id="themeAccentTeal" value="#14B8A6" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Accent Teal</div><div style="font-size:12px;color:#636E72">Icons and highlights</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <input type="color" id="themeBabyBg" value="#5EEAD4" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Baby Icon Background</div><div style="font-size:12px;color:#636E72">Circle behind baby face</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input type="color" id="themeSprout" value="#22C55E" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
+        <div><div style="font-size:14px;font-weight:600">Sprout Color</div><div style="font-size:12px;color:#636E72">🌱 sprout on baby head</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-teal" style="flex:1" onclick="applyTheme()">✅ Apply Theme</button>
+      <button class="btn" style="flex:1;background:#636E72" onclick="resetTheme()">🔄 Reset Default</button>
+    </div>
+
+    <!-- Preset Themes -->
+    <div class="form-card" style="margin-top:16px">
+      <h3 style="margin-bottom:12px">✨ Preset Themes</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn" style="background:linear-gradient(135deg,#3C0266,#5B0A8A);color:#A3FFE0;font-size:13px" onclick="loadPreset('galaxy')">🌌 Galaxy Purple</button>
+        <button class="btn" style="background:linear-gradient(135deg,#0F766E,#14B8A6);color:#FFF;font-size:13px" onclick="loadPreset('ocean')">🌊 Ocean Teal</button>
+        <button class="btn" style="background:linear-gradient(135deg,#BE185D,#EC4899);color:#FFF;font-size:13px" onclick="loadPreset('rose')">🌸 Rose Pink</button>
+        <button class="btn" style="background:linear-gradient(135deg,#1E3A5F,#3B82F6);color:#FFF;font-size:13px" onclick="loadPreset('sky')">🌤️ Sky Blue</button>
+        <button class="btn" style="background:linear-gradient(135deg,#166534,#22C55E);color:#FFF;font-size:13px" onclick="loadPreset('forest')">🌲 Forest Green</button>
+        <button class="btn" style="background:linear-gradient(135deg,#78350F,#F59E0B);color:#FFF;font-size:13px" onclick="loadPreset('sunset')">🌅 Sunset Orange</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+  <script>
+    // === DATA ===
+    let baby = null;
+    let feedingLogs = JSON.parse(localStorage.getItem('feedingLogs') || '[]');
+    let napLogs = JSON.parse(localStorage.getItem('napLogs') || '[]');
+    let diaperLogs = JSON.parse(localStorage.getItem('diaperLogs') || '[]');
+    let tummyTimeLogs = JSON.parse(localStorage.getItem('tummyTimeLogs') || '[]');
+    let savedAnswers = JSON.parse(localStorage.getItem('savedAnswers') || '[]');
+    let questionsToday = parseInt(localStorage.getItem('questionsToday') || '0');
+    let lastQuestionDate = localStorage.getItem('lastQuestionDate') || '';
+    let selectedFeedingType = 'bottle';
+    let selectedDiaperType = 'wet';
+    let selectedDurationField = '';
+
+    const milestones = [
+      { title: 'First Social Smile', desc: 'Smiles back at caregivers when spoken to or cuddled.', min: 0, max: 3, category: 'Social & Emotional', activities: [{ text: 'Talk gently and make eye contact during feedings', completed: true }, { text: 'Smile closely so baby can focus on your face', completed: true }, { text: 'Respond warmly when baby makes cooing sounds', completed: false }] },
+      { title: 'Head Control & Tummy Time', desc: 'Pushes up on arms during tummy time and holds head up briefly.', min: 0, max: 3, category: 'Motor Skills', activities: [{ text: '3-5 minutes of supervised tummy time 3x daily', completed: true }, { text: 'Place colorful high-contrast toys in front of baby', completed: false }, { text: 'Support neck while sitting upright', completed: true }] },
+      { title: 'Rolling Over & Reaching', desc: 'Rolls from tummy to back and reaches out to grasp colorful toys.', min: 3, max: 6, category: 'Motor Skills', activities: [{ text: 'Encourage rolling by placing a squeaky toy just out of reach', completed: false }, { text: 'Offer safe, easy-to-grab wooden or silicone rattles', completed: false }, { text: 'Play peek-a-boo with a soft sensory blanket', completed: false }] },
+      { title: 'Babbling & Vocalizing', desc: 'Makes vowel sounds like "ooh" and "aah" and laughs out loud.', min: 3, max: 6, category: 'Language & Communication', activities: [{ text: 'Sing nursery rhymes with animated face expressions', completed: false }, { text: "Imitate baby's sounds to encourage conversation turns", completed: false }] },
+      { title: 'Sitting Up Unassisted', desc: 'Sits without support and transfers objects from one hand to another.', min: 6, max: 9, category: 'Motor Skills', activities: [{ text: 'Surround baby with soft cushions during sitting practice', completed: false }, { text: 'Hand two toys to see if baby passes one to free up a hand', completed: false }] },
+      { title: 'First Solid Foods & Pincer Prep', desc: 'Explores purees and finger foods with enthusiasm.', min: 6, max: 9, category: 'Nutrition & Sensory', activities: [{ text: 'Introduce single-ingredient vegetable purees (avocado, sweet potato)', completed: false }, { text: 'Allow safe tactile exploration with mess-friendly high chair meals', completed: false }] },
+      { title: 'Crawling & Standing Tall', desc: 'Crawls across the room and pulls self up to stand holding furniture.', min: 9, max: 12, category: 'Motor Skills', activities: [{ text: 'Set up a safe obstacle course with soft cushions', completed: false }, { text: 'Place sturdy coffee tables for baby to practice pulling up', completed: false }] },
+      { title: 'First Words & Waving Goodbye', desc: "Says first recognizable words ('Mama', 'Dada', 'Bye') and waves hand.", min: 9, max: 12, category: 'Language & Communication', activities: [{ text: 'Point to objects and name them clearly during walks', completed: false }, { text: "Practice waving 'Bye-bye' whenever family leaves the room", completed: false }] },
+      { title: 'First Independent Steps', desc: 'Walks independently and explores the environment with delight.', min: 12, max: 18, category: 'Motor Skills', activities: [{ text: 'Encourage barefoot walking indoors for sensory feedback', completed: false }, { text: 'Play with push-toys or soft balls to kick and chase', completed: false }] },
+      { title: 'Combining Words & Stacking Blocks', desc: 'Puts two words together and stacks 4+ blocks in a tower.', min: 18, max: 24, category: 'Cognitive & Language', activities: [{ text: "Read picture books together daily and ask 'Where is the dog?'", completed: false }, { text: 'Stack wooden blocks together and celebrate the knock-down!', completed: false }] },
+    ];
+
+    // === INIT ===
+    setTimeout(() => {
+      const saved = localStorage.getItem('baby');
+      if (saved) {
+        baby = JSON.parse(saved);
+        navigate('home');
+      } else {
+        navigate('onboarding');
+      }
+    }, 2000);
+
+    // Reset daily questions
+    const today = new Date().toDateString();
+    if (lastQuestionDate !== today) {
+      questionsToday = 0;
+      localStorage.setItem('questionsToday', '0');
+      localStorage.setItem('lastQuestionDate', today);
+    }
+
+    // === NAVIGATION ===
+    function navigate(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screen).classList.add('active');
+      if (screen === 'home') updateHome();
+      if (screen === 'milestones') updateMilestones();
+      if (screen === 'profile') updateProfile();
+      if (screen === 'askAnything') updateAskAnything();
+      if (screen === 'savedAnswers') updateSavedAnswers();
+      if (screen === 'askAnything') document.getElementById('chatInput').focus();
+    }
+
+    // === ONBOARDING ===
+    function startApp() {
+      const name = document.getElementById('babyName').value.trim();
+      if (!name) { alert('Please enter a name'); return; }
+      const m = parseInt(document.getElementById('birthMonth').value) || new Date().getMonth() + 1;
+      const d = parseInt(document.getElementById('birthDay').value) || new Date().getDate();
+      const y = parseInt(document.getElementById('birthYear').value) || new Date().getFullYear() - 1;
+      baby = { id: Date.now().toString(), name, birthdate: new Date(y, m-1, d).toISOString(), createdAt: new Date().toISOString() };
+      localStorage.setItem('baby', JSON.stringify(baby));
+      navigate('home');
+    }
+
+    function skipOnboarding() {
+      baby = { id: '1', name: 'Little One', birthdate: new Date(Date.now()-60*24*60*60*1000).toISOString() };
+      localStorage.setItem('baby', JSON.stringify(baby));
+      navigate('home');
+    }
+
+    // === HOME ===
+    function updateHome() {
+      if (!baby) return;
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+      document.getElementById('greeting').textContent = greeting + ',';
+      document.getElementById('greetingName').textContent = baby.name;
+
+      const todayLogs = feedingLogs.filter(l => new Date(l.timestamp).toDateString() === today);
+      if (todayLogs.length > 0) {
+        const next = new Date(todayLogs[0].timestamp).getTime() + 3*3600000;
+        const diff = next - Date.now();
+        document.getElementById('nextFeeding').textContent = diff > 0 ? 'In ' + Math.floor(diff/3600000) + 'h ' + Math.floor((diff%3600000)/60000) + 'm' : 'Now';
+      }
+
+      const todayNaps = napLogs.filter(l => new Date(l.timestamp).toDateString() === today);
+      document.getElementById('napsToday').textContent = todayNaps.length + ' naps';
+
+      const todayTummy = tummyTimeLogs.filter(l => new Date(l.timestamp).toDateString() === today);
+      document.getElementById('tummyTimeToday').textContent = todayTummy.reduce((s,l) => s + (l.duration||0), 0) + ' minutes';
+
+      const lastDiaper = diaperLogs.length > 0 ? diaperLogs[0] : null;
+      document.getElementById('lastDiaper').textContent = lastDiaper ? getTimeSince(lastDiaper.timestamp) : 'No data';
+
+      // Hide tummy time after 6 months
+      const months = getBabyAgeMonths();
+      const hideTummy = months >= 6;
+      document.getElementById('tummyTimeCard').style.display = hideTummy ? 'none' : 'flex';
+      document.getElementById('tummyTimeBtn').style.display = hideTummy ? 'none' : 'flex';
+
+      // Daily Planner
+      updateDailyPlanner(months);
+    }
+
+    function formatOffsetTime(offsetMins) {
+      const h = Math.floor(offsetMins / 60);
+      const m = offsetMins % 60;
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const displayH = h % 12 === 0 ? 12 : h % 12;
+      return displayH + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+    }
+
+    function updateDailyPlanner(months) {
+      const el = document.getElementById('dailyPlannerList');
+      document.getElementById('plannerSubtitle').textContent = 'Based on ' + (baby ? baby.name : 'baby') + '\'s age (' + months + 'm)';
+      let items = [];
+      if (months <= 3) {
+        items = [
+          { emoji:'🍼', time:'Wake Up', desc:'Breastmilk or formula (4-5 oz)' },
+          { emoji:'😴', time:'+2 hrs', desc:'Nap window (60-90 min wake window)' },
+          { emoji:'🍼', time:'+4 hrs', desc:'Midday feed & tummy time' },
+          { emoji:'🧸', time:'+5 hrs', desc:'Milestone practice: high-contrast toys' },
+          { emoji:'🌙', time:'+10 hrs', desc:'Bedtime routine & final feed' }
+        ];
+      } else if (months <= 6) {
+        items = [
+          { emoji:'🍼', time:'Wake Up', desc:'Formula/breastmilk (5-7 oz)' },
+          { emoji:'🥣', time:'+3 hrs', desc:'Intro puree tasting (1-2 tbsp)' },
+          { emoji:'😴', time:'+4 hrs', desc:'Morning nap (1.5-2 hr wake window)' },
+          { emoji:'🍼', time:'+6 hrs', desc:'Afternoon milk feed' },
+          { emoji:'🧸', time:'+7 hrs', desc:'Practice rolling & holding rattle' },
+          { emoji:'🌙', time:'+10 hrs', desc:'Bedtime routine & feed' }
+        ];
+      } else if (months <= 12) {
+        items = [
+          { emoji:'🍳', time:'Wake Up', desc:'Breakfast + milk feed' },
+          { emoji:'😴', time:'+2.5 hrs', desc:'Morning nap window' },
+          { emoji:'🥑', time:'+4 hrs', desc:'Lunch: soft foods + milk' },
+          { emoji:'🫐', time:'+6 hrs', desc:'Snack: yogurt & fruit' },
+          { emoji:'🧸', time:'+7 hrs', desc:'Practice sitting, peek-a-boo' },
+          { emoji:'🍲', time:'+9 hrs', desc:'Family dinner + milk' },
+          { emoji:'🌙', time:'+11 hrs', desc:'Bedtime routine' }
+        ];
+      } else {
+        items = [
+          { emoji:'🍳', time:'Wake Up', desc:'Breakfast: egg, fruit & milk' },
+          { emoji:'🍏', time:'+2.5 hrs', desc:'Morning snack' },
+          { emoji:'🥪', time:'+4 hrs', desc:'Lunch: sandwich & veggies' },
+          { emoji:'😴', time:'+5 hrs', desc:'Quiet time / nap' },
+          { emoji:'🥛', time:'+7 hrs', desc:'Afternoon snack & milk' },
+          { emoji:'🍛', time:'+9 hrs', desc:'Dinner: family meal' },
+          { emoji:'🧸', time:'+10 hrs', desc:'Practice stacking blocks, words' },
+          { emoji:'🌙', time:'+11 hrs', desc:'Bedtime routine' }
+        ];
+      }
+      el.innerHTML = items.map(i =>
+        '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px;background:#F8FAFC;border-radius:10px;margin-bottom:6px;font-size:13px"><span style="font-size:18px">' + i.emoji + '</span><div><div style="font-weight:bold;color:#1E1B4B">' + i.time + '</div><div style="font-size:11px;color:#636E72">' + i.desc + '</div></div></div>'
+      ).join('');
+    }
+
+    function getTimeSince(ts) {
+      const diff = Date.now() - new Date(ts).getTime();
+      const h = Math.floor(diff/3600000);
+      const m = Math.floor((diff%3600000)/60000);
+      return h > 0 ? h + 'h ' + m + 'm ago' : m + 'm ago';
+    }
+
+    // === LOGGING ===
+    function selectFeedingType(el, type) {
+      selectedFeedingType = type;
+      el.parentElement.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function selectDiaperType(el, type) {
+      selectedDiaperType = type;
+      el.parentElement.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function selectDuration(el, mins) {
+      el.parentElement.querySelectorAll('.duration-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      const inputId = el.closest('.screen').id === 'napLog' ? 'napDuration' : 'tummyTimeDuration';
+      document.getElementById(inputId).value = mins;
+    }
+
+    function logFeeding() {
+      const amount = document.getElementById('feedingAmount').value;
+      const notes = document.getElementById('feedingNotes').value;
+      feedingLogs.unshift({ id: Date.now().toString(), type: selectedFeedingType, amount: amount ? parseFloat(amount) : null, notes: notes || null, timestamp: new Date().toISOString() });
+      localStorage.setItem('feedingLogs', JSON.stringify(feedingLogs));
+      showToast('Feeding logged! 🍼');
+      navigate('home');
+    }
+
+    function logNap() {
+      const duration = document.getElementById('napDuration').value;
+      if (!duration) { alert('Please enter duration'); return; }
+      const notes = document.getElementById('napNotes').value;
+      napLogs.unshift({ id: Date.now().toString(), duration: parseInt(duration), notes: notes || null, timestamp: new Date().toISOString() });
+      localStorage.setItem('napLogs', JSON.stringify(napLogs));
+      showToast('Nap logged! 😴');
+      navigate('home');
+    }
+
+    function logDiaper() {
+      const notes = document.getElementById('diaperNotes').value;
+      diaperLogs.unshift({ id: Date.now().toString(), type: selectedDiaperType, notes: notes || null, timestamp: new Date().toISOString() });
+      localStorage.setItem('diaperLogs', JSON.stringify(diaperLogs));
+      showToast('Diaper logged! 🚼');
+      navigate('home');
+    }
+
+    function logTummyTime() {
+      const duration = document.getElementById('tummyTimeDuration').value;
+      if (!duration) { alert('Please enter duration'); return; }
+      const notes = document.getElementById('tummyTimeNotes').value;
+      tummyTimeLogs.unshift({ id: Date.now().toString(), duration: parseInt(duration), notes: notes || null, timestamp: new Date().toISOString() });
+      localStorage.setItem('tummyTimeLogs', JSON.stringify(tummyTimeLogs));
+      showToast('Tummy time logged! 🧸');
+      navigate('home');
+    }
+
+    // === AI ===
+    function updateAskAnything() {
+      document.getElementById('questionsLeft').textContent = (10 - questionsToday) + ' left today';
+      if (document.getElementById('chatMessages').children.length === 0) {
+        document.getElementById('chatMessages').innerHTML = '<div class="empty"><div class="icon">💬</div><h3>Ask me anything about your baby!</h3><p>I\'ll give you age-specific guidance.</p><div class="suggestions"><button class="suggestion-chip" onclick="quickAsk(\'My baby has green poop\')">Green poop</button><button class="suggestion-chip" onclick="quickAsk(\'My baby won\\\'t nap\')">Won\'t nap</button><button class="suggestion-chip" onclick="quickAsk(\'Is this rash normal?\')">Rash question</button></div></div>';
+      }
+    }
+
+    function quickAsk(q) {
+      document.getElementById('chatInput').value = q;
+      askAI();
+    }
+
+    async function askAI() {
+      const input = document.getElementById('chatInput');
+      const q = input.value.trim();
+      if (!q) return;
+      if (questionsToday >= 9999) { alert('Daily limit reached.'); return; }
+
+      const msgDiv = document.getElementById('chatMessages');
+      if (msgDiv.querySelector('.empty')) msgDiv.innerHTML = '';
+
+      msgDiv.innerHTML += '<div class="message user">' + q + '</div>';
+      input.value = '';
+      msgDiv.innerHTML += '<div class="message assistant" id="loadingMsg">Thinking...</div>';
+      msgDiv.scrollTop = msgDiv.scrollHeight;
+
+      const ageMonths = getAgeInMonths();
+      const babyName = baby ? baby.name : 'your baby';
+
+      try {
+        const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
+          body: JSON.stringify({
+            model: 'meta/llama-3.1-8b-instruct',
+            messages: [
+              { role: 'system', content: 'You are Baby Bud, a warm parenting AI. Be reassuring, age-specific (' + ageMonths + ' months), never diagnose. Recommend pediatrician for health concerns.' },
+              { role: 'user', content: 'My ' + ageMonths + '-month-old baby ' + babyName + ': ' + q }
+            ],
+            max_tokens: 400,
+            temperature: 0.7,
+          })
+        });
+        const data = await res.json();
+        const answer = data.choices?.[0]?.message?.content || 'Sorry, I encountered an error. Please try again.';
+        document.getElementById('loadingMsg').innerHTML = answer + '<button class="save-btn" onclick="saveAnswer(\'' + q.replace(/'/g,"\\'") + '\', this)">💾 Save</button>';
+      } catch(e) {
+        document.getElementById('loadingMsg').textContent = 'Error: Make sure you added your API key in the code.';
+      }
+
+      questionsToday++;
+      localStorage.setItem('questionsToday', questionsToday.toString());
+      localStorage.setItem('lastQuestionDate', new Date().toDateString());
+      document.getElementById('questionsLeft').textContent = (10 - questionsToday) + ' left today';
+      msgDiv.scrollTop = msgDiv.scrollHeight;
+    }
+
+    function saveAnswer(q, btn) {
+      const answer = btn.parentElement.textContent.replace('💾 Save','').trim();
+      savedAnswers.unshift({ id: Date.now().toString(), question: q, answer, age: getAgeInMonths(), date: new Date().toISOString() });
+      localStorage.setItem('savedAnswers', JSON.stringify(savedAnswers));
+      btn.textContent = '✅ Saved';
+      btn.disabled = true;
+    }
+
+    // === MILESTONES ===
+    function updateMilestones() {
+      const age = getAgeInMonths();
+      document.getElementById('babyAge').textContent = age + ' months';
+      const relevant = milestones.filter(m => m.min <= age + 6 && m.max >= age - 2);
+      document.getElementById('milestoneList').innerHTML = relevant.length > 0 ? relevant.map(m => {
+        const total = m.activities.length;
+        const done = m.activities.filter(a => a.completed).length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        return '<div class="milestone-card"><div class="milestone-header"><div class="milestone-icon">⭐</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div class="milestone-title">' + m.title + '</div><span style="font-size:11px;font-weight:bold;padding:2px 8px;border-radius:12px;background:#EEF2FF;color:#4338CA">' + m.min + '-' + m.max + 'm</span></div>' + (m.category ? '<div style="font-size:10px;color:#636E72;margin-top:2px">' + m.category + '</div>' : '') + '</div></div><div class="milestone-desc">' + m.desc + '</div><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><div style="flex:1;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden"><div style="height:100%;background:#14B8A6;width:' + pct + '%;transition:width 0.5s"></div></div><span style="font-size:11px;font-weight:bold;color:#636E72">' + pct + '%</span></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid #E5E7EB"><div style="font-size:10px;font-weight:bold;color:#9CA3AF;text-transform:uppercase;margin-bottom:6px">Activities</div>' + m.activities.map((a,i) => '<div onclick="toggleMilestoneActivity(' + milestones.indexOf(m) + ',' + i + ')" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px;font-size:12px;cursor:pointer;background:' + (a.completed ? '#F0FDF4' : '#F8FAFC') + ';text-decoration:' + (a.completed ? 'line-through' : 'none') + ';opacity:' + (a.completed ? '0.7' : '1') + '"><span style="font-size:14px">' + (a.completed ? '✅' : '⬜') + '</span><span>' + a.text + '</span></div>').join('') + '</div></div>';
+      }).join('') : '<div class="empty"><p>No upcoming milestones</p></div>';
+    }
+
+    function toggleMilestoneActivity(mIdx, aIdx) {
+      milestones[mIdx].activities[aIdx].completed = !milestones[mIdx].activities[aIdx].completed;
+      updateMilestones();
+    }
+
+    // === PROFILE ===
+    function updateProfile() {
+      if (!baby) return;
+      document.getElementById('profileName').textContent = baby.name;
+      document.getElementById('profileAge').textContent = getAgeInMonths() + ' months old';
+    }
+
+    function updateSavedAnswers() {
+      document.getElementById('savedAnswersList').innerHTML = savedAnswers.length > 0 ? savedAnswers.map(a => '<div class="milestone-card"><div class="milestone-title">💬 ' + a.question + '</div><div class="milestone-desc">' + a.answer + '</div><div style="font-size:11px;color:#636E72">📅 ' + new Date(a.date).toLocaleDateString() + ' · ' + a.age + ' months</div></div>').join('') : '<div class="empty"><div class="icon">📝</div><h3>No saved answers yet</h3></div>';
+    }
+
+    // === HELPERS ===
+    function getAgeInMonths() {
+      if (!baby) return 0;
+      const b = new Date(baby.birthdate);
+      const n = new Date();
+      let m = (n.getFullYear()-b.getFullYear())*12 + n.getMonth()-b.getMonth();
+      if (n.getDate() < b.getDate()) m--;
+      return Math.max(0, m);
+    }
+
+    function togglePricing(yearly) {
+      document.getElementById('priceDisplay').textContent = yearly ? '$79.99/year' : '$9.99/month';
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // === PHOTO UPLOAD ===
+    function uploadPhoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        localStorage.setItem('babyPhoto', dataUrl);
+        document.getElementById('profileAvatar').innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+        const homeAvatar = document.querySelector('.avatar');
+        if (homeAvatar) homeAvatar.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function uploadOnboardPhoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        localStorage.setItem('babyPhoto', e.target.result);
+        document.getElementById('onboardAvatar').innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function loadPhoto() {
+      const photo = localStorage.getItem('babyPhoto');
+      if (photo) {
+        document.getElementById('profileAvatar').innerHTML = '<img src="' + photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+      }
+    }
+
+    // === GROWTH CHARTS ===
+    let growthData = JSON.parse(localStorage.getItem('growthData') || '[]');
+    let currentChart = 'weight';
+
+    function selectChart(el, type) {
+      currentChart = type;
+      el.parentElement.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      drawChart();
+    }
+
+    function drawChart() {
+      const canvas = document.getElementById('growthChart');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.parentElement.clientWidth - 32;
+      canvas.height = 250;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const data = growthData.map(d => {
+        if (currentChart === 'weight') return d.weight;
+        if (currentChart === 'height') return d.height;
+        return d.head;
+      }).filter(v => v);
+
+      if (data.length === 0) {
+        ctx.fillStyle = '#636E72';
+        ctx.font = '14px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('No data yet. Add measurements to see chart.', canvas.width/2, canvas.height/2);
+        return;
+      }
+
+      const padding = 40;
+      const chartW = canvas.width - padding * 2;
+      const chartH = canvas.height - padding * 2;
+      const min = Math.min(...data) * 0.9;
+      const max = Math.max(...data) * 1.1;
+      const range = max - min || 1;
+
+      // Draw grid
+      ctx.strokeStyle = '#E0E7FF';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = padding + (chartH / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(canvas.width - padding, y);
+        ctx.stroke();
+        ctx.fillStyle = '#636E72';
+        ctx.font = '11px Segoe UI';
+        ctx.textAlign = 'right';
+        ctx.fillText((max - (range / 4) * i).toFixed(1), padding - 5, y + 4);
+      }
+
+      // Draw line
+      ctx.beginPath();
+      ctx.strokeStyle = '#6366F1';
+      ctx.lineWidth = 3;
+      ctx.lineJoin = 'round';
+      data.forEach((val, i) => {
+        const x = padding + (chartW / (data.length - 1 || 1)) * i;
+        const y = padding + chartH - ((val - min) / range) * chartH;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Draw dots
+      data.forEach((val, i) => {
+        const x = padding + (chartW / (data.length - 1 || 1)) * i;
+        const y = padding + chartH - ((val - min) / range) * chartH;
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#6366F1';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+
+      updateGrowthStats();
+    }
+
+    function updateGrowthStats() {
+      if (growthData.length === 0) return;
+      const latest = growthData[growthData.length - 1];
+      if (latest.weight) document.getElementById('weightVal').textContent = latest.weight + ' lbs';
+      if (latest.height) document.getElementById('heightVal').textContent = latest.height + ' inches';
+      if (latest.head) document.getElementById('headVal').textContent = latest.head + ' inches';
+      if (latest.weight && latest.height) {
+        const bmi = (latest.weight / (latest.height * latest.height) * 703).toFixed(1);
+        document.getElementById('bmiVal').textContent = bmi;
+      }
+      // Simple percentile estimates
+      const age = getAgeInMonths();
+      if (latest.weight) {
+        const avgW = 7 + age * 1.5;
+        const perc = Math.round((latest.weight / avgW) * 50);
+        document.getElementById('weightPerc').textContent = '~' + Math.min(99, Math.max(1, perc)) + 'th percentile';
+      }
+      if (latest.height) {
+        const avgH = 19 + age * 1.2;
+        const perc = Math.round((latest.height / avgH) * 50);
+        document.getElementById('heightPerc').textContent = '~' + Math.min(99, Math.max(1, perc)) + 'th percentile';
+      }
+      if (latest.head) {
+        document.getElementById('headPerc').textContent = 'Normal range';
+      }
+    }
+
+    function showAddMeasurement() {
+      document.getElementById('measurementModal').style.display = 'flex';
+    }
+
+    function closeMeasurementModal() {
+      document.getElementById('measurementModal').style.display = 'none';
+    }
+
+    function saveMeasurement() {
+      const weight = parseFloat(document.getElementById('mWeight').value) || null;
+      const height = parseFloat(document.getElementById('mHeight').value) || null;
+      const head = parseFloat(document.getElementById('mHead').value) || null;
+
+      if (!weight && !height && !head) { alert('Please enter at least one measurement'); return; }
+
+      growthData.push({
+        date: new Date().toISOString(),
+        weight, height, head,
+        age: getAgeInMonths()
+      });
+
+      localStorage.setItem('growthData', JSON.stringify(growthData));
+      closeMeasurementModal();
+      document.getElementById('mWeight').value = '';
+      document.getElementById('mHeight').value = '';
+      document.getElementById('mHead').value = '';
+      drawChart();
+      updateMeasurementHistory();
+      alert('Measurement saved!');
+    }
+
+    function updateMeasurementHistory() {
+      const el = document.getElementById('measurementHistory');
+      if (growthData.length === 0) { el.innerHTML = ''; return; }
+      el.innerHTML = '<div class="section-title">Recent Measurements</div>' +
+        growthData.slice().reverse().slice(0, 5).map(d =>
+          '<div class="card" style="cursor:default"><div class="card-content"><div class="card-title">📅 ' + new Date(d.date).toLocaleDateString() + ' (' + d.age + 'mo)</div><div class="card-value" style="font-size:14px">' +
+          (d.weight ? d.weight + ' lbs' : '') +
+          (d.height ? ' · ' + d.height + ' in' : '') +
+          (d.head ? ' · Head: ' + d.head + ' in' : '') +
+          '</div></div></div>'
+        ).join('');
+    }
+
+    // === MULTIPLE CHILDREN ===
+    let children = JSON.parse(localStorage.getItem('children') || '[]');
+
+    function updateChildrenList() {
+      const el = document.getElementById('childrenList');
+      if (children.length === 0) {
+        el.innerHTML = '<div class="empty"><div class="icon">👨‍👩‍👧‍👦</div><h3>No children added yet</h3><p>Add up to 5 children to track them all.</p></div>';
+        return;
+      }
+      el.innerHTML = children.map((c, i) => {
+        const age = getChildAge(c.birthdate);
+        const isCurrent = baby && baby.id === c.id;
+        return '<div class="card" style="cursor:pointer;' + (isCurrent ? 'border:2px solid #6366F1' : '') + '" onclick="switchChild(' + i + ')">' +
+          '<div class="avatar" style="width:50px;height:50px;font-size:24px;margin:0">' + (c.photo ? '<img src="' + c.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">' : '😊') + '</div>' +
+          '<div class="card-content"><div class="card-title">' + c.name + '</div><div class="card-value" style="font-size:14px">' + age + '</div></div>' +
+          (isCurrent ? '<span style="color:#6366F1;font-size:12px">✓ Active</span>' : '') +
+          '<button onclick="event.stopPropagation();removeChild(' + i + ')" style="background:none;border:none;font-size:18px;cursor:pointer">🗑️</button>' +
+          '</div>';
+      }).join('');
+    }
+
+    function getChildAge(birthdate) {
+      const b = new Date(birthdate);
+      const n = new Date();
+      let m = (n.getFullYear()-b.getFullYear())*12 + n.getMonth()-b.getMonth();
+      if (n.getDate() < b.getDate()) m--;
+      return Math.max(0, m) + ' months';
+    }
+
+    function showAddChild() {
+      if (children.length >= 5) { alert('Pro supports up to 5 children.'); return; }
+      document.getElementById('addChildModal').style.display = 'flex';
+    }
+
+    function closeAddChildModal() {
+      document.getElementById('addChildModal').style.display = 'none';
+    }
+
+    function addChild() {
+      const name = document.getElementById('childName').value.trim();
+      if (!name) { alert('Please enter a name'); return; }
+      const m = parseInt(document.getElementById('childMonth').value) || new Date().getMonth() + 1;
+      const d = parseInt(document.getElementById('childDay').value) || new Date().getDate();
+      const y = parseInt(document.getElementById('childYear').value) || new Date().getFullYear() - 1;
+      children.push({ id: Date.now().toString(), name, birthdate: new Date(y, m-1, d).toISOString(), photo: null });
+      localStorage.setItem('children', JSON.stringify(children));
+      closeAddChildModal();
+      document.getElementById('childName').value = '';
+      document.getElementById('childMonth').value = '';
+      document.getElementById('childDay').value = '';
+      document.getElementById('childYear').value = '';
+      updateChildrenList();
+    }
+
+    function removeChild(index) {
+      if (!confirm('Remove this child?')) return;
+      children.splice(index, 1);
+      localStorage.setItem('children', JSON.stringify(children));
+      updateChildrenList();
+    }
+
+    function switchChild(index) {
+      baby = children[index];
+      localStorage.setItem('baby', JSON.stringify(baby));
+      updateChildrenList();
+      alert('Switched to ' + baby.name + '!');
+    }
+
+    // === MEMORY JOURNAL ===
+    let memories = JSON.parse(localStorage.getItem('memories') || '[]');
+    let currentViewingMemory = null;
+
+    const categoryEmoji = { milestone:'🏆', first:'👶', funny:'😄', sweet:'💕', photo:'📷' };
+    const categoryLabel = { milestone:'Milestone', first:'First Time', funny:'Funny Moment', sweet:'Sweet Moment', photo:'Photo' };
+
+    function updateMemoryList() {
+      const el = document.getElementById('memoryList');
+      if (memories.length === 0) {
+        el.innerHTML = '<div class="empty"><div class="icon">📖</div><h3>No memories yet</h3><p>Add your baby\'s precious moments!</p></div>';
+        return;
+      }
+      const sorted = [...memories].sort((a,b) => new Date(b.date) - new Date(a.date));
+      el.innerHTML = sorted.map((m, i) => {
+        const d = new Date(m.date);
+        const dateStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        return '<div class="card" style="cursor:pointer" onclick="viewMemory(' + memories.indexOf(m) + ')">' +
+          '<div class="avatar">' + (categoryEmoji[m.category] || '📖') + '</div>' +
+          '<div class="card-content"><div class="card-title">' + m.title + '</div>' +
+          '<div class="card-value" style="font-size:13px;color:#636E72">' + dateStr + '</div>' +
+          (m.note ? '<div style="font-size:13px;color:#4A5568;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px">' + m.note.substring(0,60) + (m.note.length > 60 ? '...' : '') + '</div>' : '') +
+          '</div></div>';
+      }).join('');
+    }
+
+    function openAddMemory() {
+      document.getElementById('addMemoryModal').style.display = 'flex';
+      document.getElementById('memoryDate').value = new Date().toISOString().split('T')[0];
+    }
+
+    function closeAddMemory() {
+      document.getElementById('addMemoryModal').style.display = 'none';
+      document.getElementById('memoryTitle').value = '';
+      document.getElementById('memoryNote').value = '';
+      document.getElementById('memoryPhotoInput').value = '';
+      document.getElementById('memoryPhotoPreview').style.display = 'none';
+    }
+
+    document.getElementById('memoryPhotoInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          document.getElementById('memoryPreviewImg').src = ev.target.result;
+          document.getElementById('memoryPhotoPreview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function saveMemory() {
+      const title = document.getElementById('memoryTitle').value.trim();
+      const category = document.getElementById('memoryCategory').value;
+      const date = document.getElementById('memoryDate').value;
+      const note = document.getElementById('memoryNote').value.trim();
+      const photoEl = document.getElementById('memoryPhotoInput');
+      const previewImg = document.getElementById('memoryPreviewImg').src;
+
+      if (!title) { alert('Please add a title'); return; }
+      if (!date) { alert('Please select a date'); return; }
+
+      const photo = photoEl.files && photoEl.files.length > 0 ? previewImg : null;
+      memories.push({ id: Date.now().toString(), title, category, date, note, photo });
+      localStorage.setItem('memories', JSON.stringify(memories));
+      closeAddMemory();
+      updateMemoryList();
+    }
+
+    function viewMemory(index) {
+      currentViewingMemory = index;
+      const m = memories[index];
+      const d = new Date(m.date);
+      document.getElementById('viewMemTitle').textContent = (categoryEmoji[m.category] || '📖') + ' ' + m.title;
+      document.getElementById('viewMemDate').textContent = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+      document.getElementById('viewMemNote').textContent = m.note || '';
+      if (m.photo) {
+        document.getElementById('viewMemPhotoImg').src = m.photo;
+        document.getElementById('viewMemPhoto').style.display = 'block';
+      } else {
+        document.getElementById('viewMemPhoto').style.display = 'none';
+      }
+      document.getElementById('viewMemoryModal').style.display = 'flex';
+    }
+
+    function closeViewMemory() {
+      document.getElementById('viewMemoryModal').style.display = 'none';
+      currentViewingMemory = null;
+    }
+
+    function deleteMemory() {
+      if (currentViewingMemory === null) return;
+      if (!confirm('Delete this memory?')) return;
+      memories.splice(currentViewingMemory, 1);
+      localStorage.setItem('memories', JSON.stringify(memories));
+      closeViewMemory();
+      updateMemoryList();
+    }
+
+    // === FEEDING GUIDE ===
+    const foodGuide = {
+      '0-4': {
+        title: '0–4 Months (Milk Only)',
+        note: 'Only breast milk or formula. No solid foods yet.',
+        foods: [
+          { emoji:'🍼', name:'Breast Milk / Formula', desc:'On demand, 8-12 times per day' }
+        ],
+        schedule: [
+          { time:'Every 2-3 hrs', emoji:'🍼', action:'Feed breast milk or formula' },
+          { time:'On demand', emoji:'😴', action:'Sleep after feeding' },
+          { time:'Every 2-3 hrs', emoji:'👶', action:'Diaper change after feeding' }
+        ]
+      },
+      '4-6': {
+        title: '4–6 Months (Starting Solids)',
+        note: 'Start with single-ingredient purees. Introduce one food at a time, wait 3 days before new food.',
+        foods: [
+          { emoji:'🍌', name:'Banana Puree', desc:'Mash or blend. Rich in potassium.' },
+          { emoji:'🍠', name:'Sweet Potato', desc:'Steam and mash. High in Vitamin A.' },
+          { emoji:'🎃', name:'Pumpkin', desc:'Steam and blend. Mild flavor babies love.' },
+          { emoji:'🥑', name:'Avocado', desc:'Mash smooth. Healthy fats for brain.' },
+          { emoji:'🍎', name:'Apple Puree', desc:'Steam and blend. Sweet and mild.' },
+          { emoji:'🍐', name:'Pear Puree', desc:'Steam and blend. Easy to digest.' },
+          { emoji:'🥕', name:'Carrot', desc:'Steam until soft. Good for eyes.' },
+          { emoji:'🥣', name:'Rice Cereal', desc:'Mix with milk. Iron-fortified first food.' }
+        ],
+        schedule: [
+          { time:'7:00 AM', emoji:'🍼', action:'Breast milk / Formula' },
+          { time:'10:00 AM', emoji:'🥣', action:'Single puree (1-2 tbsp) + milk' },
+          { time:'1:00 PM', emoji:'🍼', action:'Breast milk / Formula' },
+          { time:'4:00 PM', emoji:'🥣', action:'Different puree (1-2 tbsp) + milk' },
+          { time:'7:00 PM', emoji:'🍼', action:'Breast milk / Formula' },
+          { time:'10:00 PM', emoji:'🍼', action:'Bedtime feed' }
+        ]
+      },
+      '6-8': {
+        title: '6–8 Months (More Textures)',
+        note: 'Introduce thicker textures, soft finger foods, and combinations. Start cup drinking.',
+        foods: [
+          { emoji:'🍌', name:'Soft Banana Chunks', desc:'Finger food. Let baby self-feed.' },
+          { emoji:'🧀', name:'Cheese (soft)', desc:'Small cubes. Calcium for bones.' },
+          { emoji:'🥚', name:'Scrambled Egg', desc:'Cooked well. Protein-rich.' },
+          { emoji:'🍗', name:'Chicken Puree/Shreds', desc:'Blend or shred finely. Iron + protein.' },
+          { emoji:'🍚', name:'Soft Rice', desc:'Well-cooked, mushy rice.' },
+          { emoji:'🥦', name:'Steamed Broccoli', desc:'Soft florets. Great as finger food.' },
+          { emoji:'🫘', name:'Mashed Beans', desc:'Well-cooked and mashed. Protein.' },
+          { emoji:'🍑', name:'Peach/Mango', desc:'Mashed or soft chunks. Vitamin C.' },
+          { emoji:'🍞', name:'Toast Fingers', desc:'Lightly toasted. Good for self-feeding.' },
+          { emoji:'🥣', name:'Oatmeal', desc:'Mixed with fruit. Iron-rich breakfast.' }
+        ],
+        schedule: [
+          { time:'7:00 AM', emoji:'🍼', action:'Breast milk / Formula' },
+          { time:'8:00 AM', emoji:'🥣', action:'Oatmeal or cereal + fruit' },
+          { time:'10:30 AM', emoji:'🍼', action:'Milk' },
+          { time:'12:00 PM', emoji:'🍗', action:'Lunch: protein + veggie + grain' },
+          { time:'3:00 PM', emoji:'🍼', action:'Milk + small snack' },
+          { time:'6:00 PM', emoji:'🍌', action:'Dinner: soft foods' },
+          { time:'7:00 PM', emoji:'🍼', action:'Bedtime milk' }
+        ]
+      },
+      '8-12': {
+        title: '8–12 Months (More Variety)',
+        note: 'Three meals a day + snacks. Encourage self-feeding. Most textures OK.',
+        foods: [
+          { emoji:'🍝', name:'Pasta Shapes', desc:'Cooked soft. Fun for baby to grab.' },
+          { emoji:'🌮', name:'Soft Tacos/Quesadilla', desc:'Torn into small pieces.' },
+          { emoji:'🐟', name:'Flaky Fish', desc:'Well-cooked, deboned. Omega-3.' },
+          { emoji:'🥬', name:'Steamed Veggies', desc:'Soft carrot, peas, corn, zucchini.' },
+          { emoji:'🫐', name:'Soft Berries', desc:'Blueberries cut in half. Antioxidants.' },
+          { emoji:'🧈', name:'Nut Butter (thin)', desc:'Spread thin on toast. Allergy intro.' },
+          { emoji:'🥗', name:'Baby Salad', desc:'Soft lettuce with hummus.' },
+          { emoji:'🍖', name:'Ground Meat', desc:'Well-cooked. Iron-rich.' }
+        ],
+        schedule: [
+          { time:'7:00 AM', emoji:'🍼', action:'Milk' },
+          { time:'8:00 AM', emoji:'🥣', action:'Breakfast: egg + toast + fruit' },
+          { time:'10:30 AM', emoji:'🫐', action:'Snack: soft fruit + cheese' },
+          { time:'12:00 PM', emoji:'🍝', action:'Lunch: grain + protein + veggie' },
+          { time:'3:00 PM', emoji:'🍼', action:'Milk + snack' },
+          { time:'6:00 PM', emoji:'🍗', action:'Dinner: protein + starch + veggie' },
+          { time:'7:30 PM', emoji:'🍼', action:'Bedtime milk' }
+        ]
+      },
+      '12+': {
+        title: '12+ Months (Toddler Foods)',
+        note: 'Family meals! Whole milk. Most foods are safe. Cut grapes/choke hazards.',
+        foods: [
+          { emoji:'🥛', name:'Whole Milk', desc:'Switch from formula. 16-24 oz/day.' },
+          { emoji:'🍳', name:'Full Eggs', desc:'Any style. Great protein.' },
+          { emoji:'🥪', name:'Sandwich Strips', desc:'PB&J or cream cheese.' },
+          { emoji:'🌮', name:'Mini Burritos', desc:'Rice, beans, cheese in tortilla.' },
+          { emoji:'🍕', name:'Pizza Strips', desc:'Veggie toppings. Fun finger food.' },
+          { emoji:'🥗', name:'Chopped Salads', desc:'Small pieces of everything.' },
+          { emoji:'🍦', name:'Yogurt', desc:'Plain or with fruit. Calcium + probiotics.' },
+          { emoji:'🥜', name:'Nut Butters', desc:'On toast or celery. Allergy intro.' }
+        ],
+        schedule: [
+          { time:'7:00 AM', emoji:'🥣', action:'Breakfast: cereal + fruit + milk' },
+          { time:'10:00 AM', emoji:'🍌', action:'Morning snack' },
+          { time:'12:00 PM', emoji:'🌮', action:'Lunch: sandwich + veggies + milk' },
+          { time:'3:00 PM', emoji:'🍦', action:'Afternoon snack: yogurt + fruit' },
+          { time:'6:00 PM', emoji:'🍽️', action:'Dinner: family meal + milk' }
+        ]
+      }
+    };
+
+    function getBabyAgeMonths() {
+      if (!baby || !baby.birthdate) return 0;
+      const b = new Date(baby.birthdate);
+      const n = new Date();
+      let m = (n.getFullYear()-b.getFullYear())*12 + n.getMonth()-b.getMonth();
+      if (n.getDate() < b.getDate()) m--;
+      return Math.max(0, m);
+    }
+
+    function updateFeedingGuide() {
+      const months = getBabyAgeMonths();
+      let guide;
+      if (months < 4) guide = foodGuide['0-4'];
+      else if (months < 6) guide = foodGuide['4-6'];
+      else if (months < 8) guide = foodGuide['6-8'];
+      else if (months < 12) guide = foodGuide['8-12'];
+      else guide = foodGuide['12+'];
+
+      document.getElementById('feedingAgeNote').textContent = guide.title + ' (' + months + ' months)';
+
+      document.getElementById('foodList').innerHTML = guide.foods.map(f =>
+        '<div class="food-item"><div class="food-emoji">' + f.emoji + '</div><div class="food-info"><h4>' + f.name + '</h4><p>' + f.desc + '</p></div></div>'
+      ).join('');
+
+      document.getElementById('sampleSchedule').innerHTML = guide.schedule.map(s =>
+        '<div class="schedule-row"><span class="s-time">' + s.time + '</span><span class="s-emoji">' + s.emoji + '</span><span>' + s.action + '</span></div>'
+      ).join('');
+    }
+
+    // === SCHEDULE & NOTIFICATIONS ===
+    let scheduleSettings = JSON.parse(localStorage.getItem('scheduleSettings') || '{"feedingOn":false,"feedingInterval":4,"feedingTimes":[],"napOn":false,"napInterval":5,"napTimes":[]}');
+    let reminderTimers = [];
+
+    function initScheduleNotif() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+      document.getElementById('feedingReminderOn').checked = scheduleSettings.feedingOn;
+      document.getElementById('napReminderOn').checked = scheduleSettings.napOn;
+      toggleFeedingReminderUI();
+      toggleNapReminderUI();
+      buildTimeInputs('feedingTimes', scheduleSettings.feedingTimes, 'feed');
+      buildTimeInputs('napTimes', scheduleSettings.napTimes, 'nap');
+      updateActiveReminders();
+      updateNextReminderText('feeding');
+      updateNextReminderText('nap');
+    }
+
+    function toggleFeedingReminder() {
+      scheduleSettings.feedingOn = document.getElementById('feedingReminderOn').checked;
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      toggleFeedingReminderUI();
+      scheduleTimers();
+    }
+
+    function toggleNapReminder() {
+      scheduleSettings.napOn = document.getElementById('napReminderOn').checked;
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      toggleNapReminderUI();
+      scheduleTimers();
+    }
+
+    function toggleFeedingReminderUI() {
+      document.getElementById('feedingReminderOptions').style.display = scheduleSettings.feedingOn ? 'block' : 'none';
+    }
+
+    function toggleNapReminderUI() {
+      document.getElementById('napReminderOptions').style.display = scheduleSettings.napOn ? 'block' : 'none';
+    }
+
+    function setFeedInterval(hrs, el) {
+      scheduleSettings.feedingInterval = hrs;
+      scheduleSettings.feedingTimes = [];
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      buildTimeInputs('feedingTimes', [], 'feed');
+      document.querySelectorAll('#feedingReminderOptions .btn-hour').forEach(b => b.classList.remove('btn-active'));
+      el.classList.add('btn-active');
+      scheduleTimers();
+      updateNextReminderText('feeding');
+    }
+
+    function setNapInterval(hrs, el) {
+      scheduleSettings.napInterval = hrs;
+      scheduleSettings.napTimes = [];
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      buildTimeInputs('napTimes', [], 'nap');
+      document.querySelectorAll('#napReminderOptions .btn-hour').forEach(b => b.classList.remove('btn-active'));
+      el.classList.add('btn-active');
+      scheduleTimers();
+      updateNextReminderText('nap');
+    }
+
+    function buildTimeInputs(containerId, times, type) {
+      const el = document.getElementById(containerId);
+      el.innerHTML = times.map((t, i) =>
+        '<div class="time-row"><input type="time" value="' + t + '" onchange="updateTime(\'' + type + '\',' + i + ',this.value)"><button onclick="removeTime(\'' + type + '\',' + i + ')">✕</button></div>'
+      ).join('');
+    }
+
+    function addFeedingTime() {
+      scheduleSettings.feedingTimes.push('07:00');
+      scheduleSettings.feedingInterval = 0;
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      buildTimeInputs('feedingTimes', scheduleSettings.feedingTimes, 'feed');
+      document.querySelectorAll('#feedingReminderOptions .btn-hour').forEach(b => b.classList.remove('btn-active'));
+      scheduleTimers();
+      updateNextReminderText('feeding');
+    }
+
+    function addNapTime() {
+      scheduleSettings.napTimes.push('13:00');
+      scheduleSettings.napInterval = 0;
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      buildTimeInputs('napTimes', scheduleSettings.napTimes, 'nap');
+      document.querySelectorAll('#napReminderOptions .btn-hour').forEach(b => b.classList.remove('btn-active'));
+      scheduleTimers();
+      updateNextReminderText('nap');
+    }
+
+    function updateTime(type, index, value) {
+      if (type === 'feed') scheduleSettings.feedingTimes[index] = value;
+      else scheduleSettings.napTimes[index] = value;
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      scheduleTimers();
+      updateNextReminderText(type);
+    }
+
+    function removeTime(type, index) {
+      if (type === 'feed') scheduleSettings.feedingTimes.splice(index, 1);
+      else scheduleSettings.napTimes.splice(index, 1);
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      buildTimeInputs(type === 'feed' ? 'feedingTimes' : 'napTimes',
+        type === 'feed' ? scheduleSettings.feedingTimes : scheduleSettings.napTimes, type);
+      scheduleTimers();
+      updateNextReminderText(type);
+    }
+
+    function scheduleTimers() {
+      reminderTimers.forEach(t => clearTimeout(t));
+      reminderTimers = [];
+
+      if (scheduleSettings.feedingOn) {
+        if (scheduleSettings.feedingTimes.length > 0) {
+          scheduleSettings.feedingTimes.forEach(t => scheduleSpecificReminder(t, '🍼 Feeding Time!', 'Time to feed the baby!'));
+        } else if (scheduleSettings.feedingInterval > 0) {
+          scheduleIntervalReminder(scheduleSettings.feedingInterval, '🍼 Feeding Time!', 'Time to feed the baby!');
+        }
+      }
+
+      if (scheduleSettings.napOn) {
+        if (scheduleSettings.napTimes.length > 0) {
+          scheduleSettings.napTimes.forEach(t => scheduleSpecificReminder(t, '😴 Nap Time!', 'Time for a nap!'));
+        } else if (scheduleSettings.napInterval > 0) {
+          scheduleIntervalReminder(scheduleSettings.napInterval, '😴 Nap Time!', 'Time for a nap!');
+        }
+      }
+
+      updateActiveReminders();
+    }
+
+    function scheduleSpecificReminder(timeStr, title, body) {
+      const [h, m] = timeStr.split(':').map(Number);
+      const now = new Date();
+      const target = new Date();
+      target.setHours(h, m, 0, 0);
+      if (target <= now) target.setDate(target.getDate() + 1);
+      const delay = target - now;
+      const timer = setTimeout(() => {
+        sendNotification(title, body);
+        scheduleSpecificReminder(timeStr, title, body);
+      }, delay);
+      reminderTimers.push(timer);
+    }
+
+    function scheduleIntervalReminder(hours, title, body) {
+      const ms = hours * 60 * 60 * 1000;
+      const timer = setTimeout(() => {
+        sendNotification(title, body);
+        scheduleIntervalReminder(hours, title, body);
+      }, ms);
+      reminderTimers.push(timer);
+    }
+
+    function sendNotification(title, body) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body, icon: '🍼' });
+      } else {
+        alert(title + '\n' + body);
+      }
+    }
+
+    function updateNextReminderText(type) {
+      const el = document.getElementById(type === 'feed' ? 'feedingScheduleText' : 'napScheduleText');
+      const settings = type === 'feed' ? scheduleSettings.feedingOn && (scheduleSettings.feedingTimes.length > 0 || scheduleSettings.feedingInterval > 0) : scheduleSettings.napOn && (scheduleSettings.napTimes.length > 0 || scheduleSettings.napInterval > 0);
+      if (!settings) { el.textContent = 'Next reminder: --'; return; }
+      const times = type === 'feed' ? scheduleSettings.feedingTimes : scheduleSettings.napTimes;
+      const interval = type === 'feed' ? scheduleSettings.feedingInterval : scheduleSettings.napInterval;
+      if (times.length > 0) {
+        el.textContent = 'Scheduled at: ' + times.join(', ');
+      } else if (interval > 0) {
+        el.textContent = 'Every ' + interval + ' hours';
+      }
+    }
+
+    function updateActiveReminders() {
+      const el = document.getElementById('activeReminders');
+      const items = [];
+      if (scheduleSettings.feedingOn) {
+        if (scheduleSettings.feedingTimes.length > 0) items.push('🍼 Feeding at ' + scheduleSettings.feedingTimes.join(', '));
+        else if (scheduleSettings.feedingInterval > 0) items.push('🍼 Feeding every ' + scheduleSettings.feedingInterval + ' hrs');
+      }
+      if (scheduleSettings.napOn) {
+        if (scheduleSettings.napTimes.length > 0) items.push('😴 Nap at ' + scheduleSettings.napTimes.join(', '));
+        else if (scheduleSettings.napInterval > 0) items.push('😴 Nap every ' + scheduleSettings.napInterval + ' hrs');
+      }
+      el.innerHTML = items.length > 0 ? items.map(i => '<p style="padding:6px 0;font-size:14px;border-bottom:1px solid #E2E8F0">' + i + '</p>').join('') : '<p style="color:#636E72;font-size:14px">No active reminders</p>';
+    }
+
+    function clearAllReminders() {
+      reminderTimers.forEach(t => clearTimeout(t));
+      reminderTimers = [];
+      scheduleSettings = { feedingOn: false, feedingInterval: 4, feedingTimes: [], napOn: false, napInterval: 5, napTimes: [] };
+      localStorage.setItem('scheduleSettings', JSON.stringify(scheduleSettings));
+      document.getElementById('feedingReminderOn').checked = false;
+      document.getElementById('napReminderOn').checked = false;
+      toggleFeedingReminderUI();
+      toggleNapReminderUI();
+      buildTimeInputs('feedingTimes', [], 'feed');
+      buildTimeInputs('napTimes', [], 'nap');
+      updateActiveReminders();
+      updateNextReminderText('feeding');
+      updateNextReminderText('nap');
+      alert('All reminders cleared!');
+    }
+
+    // === DATA MANAGEMENT ===
+    function exportData() {
+      const data = {
+        baby, feedingLogs, napLogs, diaperLogs, tummyTimeLogs,
+        savedAnswers, memories, milestones, growthLogs,
+        reminders, scheduleSettings, savedTheme,
+        exportDate: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'babybud_backup_' + new Date().toISOString().split('T')[0] + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Data exported! 📥');
+    }
+
+    function deleteAllData() {
+      if (!confirm('⚠️ This will DELETE ALL your data permanently!\n\nAre you sure?')) return;
+      if (!confirm('Last chance! This cannot be undone. Type YES to confirm.')) return;
+      localStorage.clear();
+      showToast('All data deleted! 🗑️');
+      setTimeout(() => location.reload(), 1500);
+    }
+
+    // Update navigate to include new screens
+    const origNavigate = navigate;
+    navigate = function(screen) {
+      origNavigate(screen);
+      if (screen === 'profile') loadPhoto();
+      if (screen === 'growthCharts') { drawChart(); updateMeasurementHistory(); }
+      if (screen === 'children') updateChildrenList();
+      if (screen === 'memoryJournal') updateMemoryList();
+      if (screen === 'feedingGuide') updateFeedingGuide();
+      if (screen === 'scheduleNotif') initScheduleNotif();
+      if (screen === 'themeEditor') loadThemeEditor();
+      if (screen === 'settings') updateSettings();
+    };
+
+    // === THEME EDITOR ===
+    const defaultTheme = {
+      bgPrimary: '#3C0266', bgSecondary: '#5B0A8A',
+      heading: '#A3FFE0', textPrimary: '#1A0033',
+      btnFrom: '#818CF8', btnTo: '#6366F1',
+      accentTeal: '#14B8A6', babyBg: '#5EEAD4', sprout: '#22C55E'
+    };
+    let savedTheme = JSON.parse(localStorage.getItem('appTheme') || 'null') || { ...defaultTheme };
+
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'show ' + (type || 'success');
+      setTimeout(() => { t.className = ''; }, 3000);
+    }
+
+    function applyThemeCSS(theme) {
+      const root = document.documentElement;
+      root.style.setProperty('--bg-primary', theme.bgPrimary);
+      root.style.setProperty('--bg-secondary', theme.bgSecondary);
+      root.style.setProperty('--heading-color', theme.heading);
+      root.style.setProperty('--text-primary', theme.textPrimary);
+      root.style.setProperty('--btn-from', theme.btnFrom);
+      root.style.setProperty('--btn-to', theme.btnTo);
+      root.style.setProperty('--accent-teal', theme.accentTeal);
+      root.style.setProperty('--baby-icon-bg', theme.babyBg);
+      root.style.setProperty('--baby-icon-sprout', theme.sprout);
+      document.querySelector('.splash h1').style.color = theme.heading;
+      document.querySelector('.splash p').style.color = theme.heading + 'CC';
+      document.querySelector('.back-btn').style.color = theme.heading;
+      document.querySelectorAll('.header h2').forEach(h => h.style.color = theme.heading);
+      document.querySelector('.baby-face').style.color = theme.babyBg;
+      document.querySelector('.baby-sprout').style.color = theme.sprout;
+    }
+
+    function loadThemeEditor() {
+      document.getElementById('themeBgPrimary').value = savedTheme.bgPrimary;
+      document.getElementById('themeBgSecondary').value = savedTheme.bgSecondary;
+      document.getElementById('themeHeading').value = savedTheme.heading;
+      document.getElementById('themeTextPrimary').value = savedTheme.textPrimary;
+      document.getElementById('themeBtnFrom').value = savedTheme.btnFrom;
+      document.getElementById('themeBtnTo').value = savedTheme.btnTo;
+      document.getElementById('themeAccentTeal').value = savedTheme.accentTeal;
+      document.getElementById('themeBabyBg').value = savedTheme.babyBg;
+      document.getElementById('themeSprout').value = savedTheme.sprout;
+    }
+
+    function updateTheme() {
+      const t = {
+        bgPrimary: document.getElementById('themeBgPrimary').value,
+        bgSecondary: document.getElementById('themeBgSecondary').value,
+        heading: document.getElementById('themeHeading').value,
+        textPrimary: document.getElementById('themeTextPrimary').value,
+        btnFrom: document.getElementById('themeBtnFrom').value,
+        btnTo: document.getElementById('themeBtnTo').value,
+        accentTeal: document.getElementById('themeAccentTeal').value,
+        babyBg: document.getElementById('themeBabyBg').value,
+        sprout: document.getElementById('themeSprout').value
+      };
+      applyThemeCSS(t);
+    }
+
+    function applyTheme() {
+      const t = {
+        bgPrimary: document.getElementById('themeBgPrimary').value,
+        bgSecondary: document.getElementById('themeBgSecondary').value,
+        heading: document.getElementById('themeHeading').value,
+        textPrimary: document.getElementById('themeTextPrimary').value,
+        btnFrom: document.getElementById('themeBtnFrom').value,
+        btnTo: document.getElementById('themeBtnTo').value,
+        accentTeal: document.getElementById('themeAccentTeal').value,
+        babyBg: document.getElementById('themeBabyBg').value,
+        sprout: document.getElementById('themeSprout').value
+      };
+      savedTheme = t;
+      localStorage.setItem('appTheme', JSON.stringify(t));
+      applyThemeCSS(t);
+      alert('Theme saved! 🎨');
+    }
+
+    function resetTheme() {
+      savedTheme = { ...defaultTheme };
+      localStorage.setItem('appTheme', JSON.stringify(savedTheme));
+      applyThemeCSS(savedTheme);
+      loadThemeEditor();
+      alert('Theme reset to default!');
+    }
+
+    const presets = {
+      galaxy: { bgPrimary:'#3C0266', bgSecondary:'#5B0A8A', heading:'#A3FFE0', textPrimary:'#1A0033', btnFrom:'#818CF8', btnTo:'#6366F1', accentTeal:'#14B8A6', babyBg:'#5EEAD4', sprout:'#22C55E' },
+      ocean: { bgPrimary:'#0F766E', bgSecondary:'#14B8A6', heading:'#CCFBF1', textPrimary:'#134E4A', btnFrom:'#06B6D4', btnTo:'#0891B2', accentTeal:'#2DD4BF', babyBg:'#99F6E4', sprout:'#22C55E' },
+      rose: { bgPrimary:'#BE185D', bgSecondary:'#EC4899', heading:'#FDF2F8', textPrimary:'#831843', btnFrom:'#F472B6', btnTo:'#EC4899', accentTeal:'#FB7185', babyBg:'#FBCFE8', sprout:'#86EFAC' },
+      sky: { bgPrimary:'#1E3A5F', bgSecondary:'#3B82F6', heading:'#EFF6FF', textPrimary:'#1E3A5F', btnFrom:'#60A5FA', btnTo:'#3B82F6', accentTeal:'#38BDF8', babyBg:'#BAE6FD', sprout:'#86EFAC' },
+      forest: { bgPrimary:'#166534', bgSecondary:'#22C55E', heading:'#F0FDF4', textPrimary:'#14532D', btnFrom:'#4ADE80', btnTo:'#22C55E', accentTeal:'#86EFAC', babyBg:'#BBF7D0', sprout:'#FDE047' },
+      sunset: { bgPrimary:'#78350F', bgSecondary:'#F59E0B', heading:'#FFFBEB', textPrimary:'#78350F', btnFrom:'#FBBF24', btnTo:'#F59E0B', accentTeal:'#FB923C', babyBg:'#FDE68A', sprout:'#86EFAC' }
+    };
+
+    function loadPreset(name) {
+      const t = presets[name];
+      savedTheme = { ...t };
+      localStorage.setItem('appTheme', JSON.stringify(t));
+      applyThemeCSS(t);
+      loadThemeEditor();
+      alert('Preset "' + name + '" applied! 🎨');
+    }
+
+    // === SETTINGS ===
+    function updateSettings() {
+      document.getElementById('settingsPlan').textContent = 'Pro';
+      document.getElementById('settingsBabies').textContent = '1';
+    }
+
+    function exportData() {
+      const data = {
+        baby, feedingLogs, napLogs, diaperLogs, tummyTimeLogs,
+        savedAnswers, memories, milestones, reminders, growthLogs,
+        savedTheme, children, memories
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'babybud_backup_' + new Date().toISOString().split('T')[0] + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Data exported! 📥');
+    }
+
+    function deleteAllData() {
+      if (!confirm('⚠️ Are you absolutely sure? This cannot be undone!')) return;
+      if (!confirm('This will delete ALL baby profiles, logs, memories, and settings. Continue?')) return;
+      const keys = Object.keys(localStorage).filter(k => k.startsWith('babybud_') || k === 'baby' || k === 'feedingLogs' || k === 'napLogs' || k === 'diaperLogs' || k === 'tummyTimeLogs' || k === 'savedAnswers' || k === 'memories' || k === 'growthLogs' || k === 'reminders' || k === 'children' || k === 'appTheme');
+      keys.forEach(k => localStorage.removeItem(k));
+      showToast('All data deleted! 🗑️');
+      setTimeout(() => location.reload(), 1500);
+    }
+  </script>
+</body>
+</html>
