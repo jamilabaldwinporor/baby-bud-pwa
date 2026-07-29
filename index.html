@@ -1076,6 +1076,77 @@
       updateDailyPlanner(months);
     }
 
+    function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function getDayMeals(months, dayIdx) {
+      const all = {
+        0: { // Sunday
+          breakfast: { emoji:'🥞', foods:['Banana pancakes & yogurt','Oatmeal with blueberries','Scrambled eggs & toast','French toast sticks & fruit'] },
+          lunch: { emoji:'🍕', foods:['Mini pizza bites & cucumber','Chicken strips & sweet potato fries','Mac & cheese with peas','Turkey roll-ups & crackers'] },
+          snack: { emoji:'🫐', foods:['Yogurt parfait with granola','Apple slices & peanut butter','Cheese cubes & grapes','Smoothie bowl'] },
+          dinner: { emoji:'🍝', foods:['Pasta with hidden veggie sauce','Meatballs & mashed potatoes','Fish sticks & rice','Chicken noodle soup'] }
+        },
+        1: { // Monday
+          breakfast: { emoji:'🥣', foods:['Oatmeal with cinnamon & banana','Whole grain cereal & berries','Pancakes with fruit topping','Yogurt with honey & oats'] },
+          lunch: { emoji:'🥗', foods:['Avocado toast & tomato soup','Quinoa bowl with veggies','Grilled cheese & tomato soup','Bean & cheese quesadilla'] },
+          snack: { emoji:'🥕', foods:['Hummus & carrot sticks','Trail mix (age-appropriate)','Cheese & whole wheat crackers','Cottage cheese & peach'] },
+          dinner: { emoji:'🍛', foods:['Mild chicken curry & rice','Lentil soup & bread','Salmon & sweet potato mash','Veggie stir-fry & noodles'] }
+        },
+        2: { // Tuesday
+          breakfast: { emoji:'🍳', foods:['Scrambled eggs & avocado','Banana muffins','Cottage cheese & fruit','Breakfast burrito (mild)'] },
+          lunch: { emoji:'🥪', foods:['Turkey & cheese sandwich','Hummus veggie wrap','Tuna salad (low mercury) & crackers','Black bean & corn salad'] },
+          snack: { emoji:'🍌', foods:['Banana & almond butter','Rice cakes & cream cheese','Dried mango & cheese','Fruit & yogurt pouch'] },
+          dinner: { emoji:'🍗', foods:['Baked chicken drumsticks','Mild fish tacos','Spaghetti bolognese','Shepherd\'s pie'] }
+        },
+        3: { // Wednesday
+          breakfast: { emoji:'🫐', foods:['Berry smoothie bowl','Whole wheat waffles & fruit','Yogurt parfait','Egg muffins & toast'] },
+          lunch: { emoji:'🥣', foods:['Chicken & rice soup','Pasta salad with veggies','Sweet potato & black bean bowl','Tuna melt on whole wheat'] },
+          snack: { emoji:'🧀', foods:['Cheese & apple slices','Puffed rice & yogurt','Mango chunks & cottage cheese','Cucumber rounds & tzatziki'] },
+          dinner: { emoji:'🍲', foods:['Vegetable stew with bread','Chicken & vegetable curry','Baked cod with veggies','Mild turkey chili'] }
+        },
+        4: { // Thursday
+          breakfast: { emoji:'🥑', foods:['Avocado toast with egg','Greek yogurt & granola','Fruit salad & cheese','Oatmeal with nut butter'] },
+          lunch: { emoji:'🌮', foods:['Mini soft tacos','Lentil & veggie wrap','Chicken quesadilla','Rice & beans bowl'] },
+          snack: { emoji:'🍐', foods:['Pear & cheese','Homemade fruit leather','Yogurt & berry popsicle','Edamame (shelled)'] },
+          dinner: { emoji:'🐟', foods:['Baked salmon & quinoa','Chicken meatballs & pasta','Mild coconut curry & rice','Veggie fried rice'] }
+        },
+        5: { // Friday
+          breakfast: { emoji:'🍞', foods:['French toast with berries','Banana bread & yogurt','Egg & cheese English muffin','Fruit & oat bar'] },
+          lunch: { emoji:'🍕', foods:['Homemade veggie pizza','Mini sliders & fries','Pasta with pesto','Chicken Caesar salad (mild)'] },
+          snack: { emoji:'🍪', foods:['Oatmeal cookies (no sugar)','Banana & peanut butter bites','Cheese quesadilla bites','Fruit kebabs'] },
+          dinner: { emoji:'🦐', foods:['Shrimp & rice (low mercury)','Homemade fish & chips','Beef & broccoli stir-fry','Creamy chicken pasta'] }
+        },
+        6: { // Saturday
+          breakfast: { emoji:'🧇', foods:['Belgian waffles & fruit','Eggs in a basket','Smoothie & toast','Breakfast quesadilla'] },
+          lunch: { emoji:'🍔', foods:['Mini turkey burgers','Grilled chicken strips','Veggie soup & bread','Tuna salad sandwich'] },
+          snack: { emoji:'🍊', foods:['Orange segments & cheese','Popcorn (age-appropriate)','Hummus & pita','Yogurt bark'] },
+          dinner: { emoji:'🌮', foods:['Mild chicken fajitas','Beef & vegetable stew','Pasta primavera','Baked chicken & roasted veggies'] }
+        }
+      };
+
+      const dayData = all[dayIdx] || all[0];
+      const pick = (category) => pickRandom(category.foods);
+
+      if (months <= 3) {
+        return {
+          lunch: { emoji:'🍼', food:'Breastmilk or formula (4-5 oz)' },
+          snack: { emoji:'🍼', food:'Breastmilk or formula on demand' }
+        };
+      } else if (months <= 6) {
+        return {
+          lunch: { emoji:'🥣', food: pickRandom(['Pureed sweet potato (1-2 tbsp)','Mashed banana & oatmeal','Rice cereal & pureed peas','Pureed pear & avocado']) },
+          snack: { emoji:'🍼', food:'Breastmilk or formula (6-7 oz)' }
+        };
+      } else {
+        return {
+          breakfast: { emoji: dayData.breakfast.emoji, food: pick(dayData.breakfast) },
+          lunch: { emoji: dayData.lunch.emoji, food: pick(dayData.lunch) },
+          snack: { emoji: dayData.snack.emoji, food: pick(dayData.snack) },
+          dinner: { emoji: dayData.dinner.emoji, food: pick(dayData.dinner) }
+        };
+      }
+    }
+
     function updateDailyPlanner(months) {
       const el = document.getElementById('dailyPlannerList');
       document.getElementById('plannerSubtitle').textContent = 'Based on ' + (baby ? baby.name : 'baby') + '\'s age (' + months + 'm)';
@@ -1094,6 +1165,7 @@
 
       const dayIdx = window._plannerDay !== undefined ? window._plannerDay : todayIdx;
       const dayActivities = getMilestoneActivities(months, dayIdx);
+      const dayMeals = getDayMeals(months, dayIdx);
       const dayLabel = dayNames[dayIdx] + (dayIdx === todayIdx ? ' (Today)' : '');
       document.getElementById('plannerDayLabel').textContent = dayLabel;
 
@@ -1112,33 +1184,33 @@
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & morning feed (5-7 oz)', hours:0 },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour,wakeMin+30), desc: dayActivities[0].text, hours:0.5, tag: dayActivities[0].category },
-          { emoji:'🥣', time:formatTime(wakeHour+2,wakeMin+30), desc:'Solid food intro: puree tasting (1-2 tbsp)', hours:2.5 },
+          { emoji: dayMeals.lunch.emoji, time:formatTime(wakeHour+2,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:2.5, tag:'Nutrition' },
           { emoji:'😴', time:formatTime(wakeHour+3,wakeMin+30), desc:'Morning nap (1.5-2 hr wake window)', hours:3.5 },
           { emoji:'🍼', time:formatTime(wakeHour+5,wakeMin+30), desc:'Afternoon milk feed', hours:5.5 },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+6,wakeMin+30), desc: dayActivities[1].text, hours:6.5, tag: dayActivities[1].category },
-          { emoji:'🍼', time:formatTime(wakeHour+8,wakeMin+30), desc:'Evening feed', hours:8.5 },
+          { emoji: dayMeals.snack.emoji, time:formatTime(wakeHour+8,wakeMin+30), desc:'Snack: ' + dayMeals.snack.food, hours:8.5, tag:'Nutrition' },
           { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & final feed', hours:10.5 }
         ];
       } else if (months <= 12) {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast + milk feed', hours:0 },
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: ' + dayMeals.breakfast.food, hours:0, tag:'Nutrition' },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour,wakeMin+30), desc: dayActivities[0].text, hours:0.5, tag: dayActivities[0].category },
           { emoji:'😴', time:formatTime(wakeHour+2,wakeMin+30), desc:'Morning nap window', hours:2.5 },
-          { emoji:'🥑', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: soft foods + milk', hours:4.5 },
-          { emoji:'🫐', time:formatTime(wakeHour+6,wakeMin), desc:'Snack: yogurt & fruit', hours:6 },
+          { emoji: dayMeals.lunch.emoji, time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:4.5, tag:'Nutrition' },
+          { emoji: dayMeals.snack.emoji, time:formatTime(wakeHour+6,wakeMin), desc:'Snack: ' + dayMeals.snack.food, hours:6, tag:'Nutrition' },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[1].text, hours:7, tag: dayActivities[1].category },
-          { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin), desc:'Family dinner + milk', hours:9 },
+          { emoji: dayMeals.dinner.emoji, time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food, hours:9, tag:'Nutrition' },
           { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
         ];
       } else {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: egg, fruit & milk', hours:0 },
-          { emoji:'🍏', time:formatTime(wakeHour+2,wakeMin+30), desc:'Morning snack', hours:2.5 },
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: ' + dayMeals.breakfast.food, hours:0, tag:'Nutrition' },
+          { emoji: dayMeals.snack.emoji, time:formatTime(wakeHour+2,wakeMin+30), desc:'Snack: ' + dayMeals.snack.food, hours:2.5, tag:'Nutrition' },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+3,wakeMin+30), desc: dayActivities[0].text, hours:3.5, tag: dayActivities[0].category },
-          { emoji:'🥪', time:formatTime(wakeHour+4,wakeMin), desc:'Lunch: sandwich & veggies', hours:4 },
+          { emoji: dayMeals.lunch.emoji, time:formatTime(wakeHour+4,wakeMin), desc:'Lunch: ' + dayMeals.lunch.food, hours:4, tag:'Nutrition' },
           { emoji:'😴', time:formatTime(wakeHour+5,wakeMin), desc:'Quiet time / nap', hours:5 },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[1].text, hours:7, tag: dayActivities[1].category },
-          { emoji:'🍛', time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: family meal', hours:9 },
+          { emoji: dayMeals.dinner.emoji, time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food, hours:9, tag:'Nutrition' },
           { emoji:'🧸', time:formatTime(wakeHour+10,wakeMin), desc:'Free play & bonding time', hours:10 },
           { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
         ];
