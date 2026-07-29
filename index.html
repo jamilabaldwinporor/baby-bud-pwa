@@ -994,6 +994,12 @@
       const saved = localStorage.getItem('baby');
       if (saved) {
         baby = JSON.parse(saved);
+        const savedChildren = localStorage.getItem('children');
+        if (savedChildren) {
+          children = JSON.parse(savedChildren);
+          const match = children.find(c => c.id === baby.id);
+          if (match) baby = match;
+        }
         navigate('home');
       } else {
         navigate('onboarding');
@@ -1027,8 +1033,11 @@
       const m = parseInt(document.getElementById('birthMonth').value) || new Date().getMonth() + 1;
       const d = parseInt(document.getElementById('birthDay').value) || new Date().getDate();
       const y = parseInt(document.getElementById('birthYear').value) || new Date().getFullYear() - 1;
-      baby = { id: Date.now().toString(), name, birthdate: new Date(y, m-1, d).toISOString(), createdAt: new Date().toISOString() };
+      baby = { id: Date.now().toString(), name, birthdate: new Date(y, m-1, d).toISOString(), createdAt: new Date().toISOString(), photo: pendingChildPhoto || null };
+      children.push(baby);
+      localStorage.setItem('children', JSON.stringify(children));
       localStorage.setItem('baby', JSON.stringify(baby));
+      pendingChildPhoto = null;
       navigate('home');
     }
 
@@ -1205,11 +1214,12 @@
       } else {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: ' + dayMeals.breakfast.food, hours:0, tag:'Nutrition' },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
           { emoji: dayMeals.snack.emoji, time:formatTime(wakeHour+2,wakeMin+30), desc:'Snack: ' + dayMeals.snack.food, hours:2.5, tag:'Nutrition' },
-          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+3,wakeMin+30), desc: dayActivities[0].text, hours:3.5, tag: dayActivities[0].category },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+3,wakeMin+30), desc: dayActivities[1].text, hours:3.5, tag: dayActivities[1].category },
           { emoji: dayMeals.lunch.emoji, time:formatTime(wakeHour+4,wakeMin), desc:'Lunch: ' + dayMeals.lunch.food, hours:4, tag:'Nutrition' },
           { emoji:'😴', time:formatTime(wakeHour+5,wakeMin), desc:'Quiet time / nap', hours:5 },
-          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[1].text, hours:7, tag: dayActivities[1].category },
+          { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[2].text, hours:7, tag: dayActivities[2].category },
           { emoji: dayMeals.dinner.emoji, time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food, hours:9, tag:'Nutrition' },
           { emoji:'🧸', time:formatTime(wakeHour+10,wakeMin), desc:'Free play & bonding time', hours:10 },
           { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
@@ -1241,31 +1251,38 @@
       const activities = {
         0: [ // Sunday - Motor Skills
           { category:'Motor', emoji:'🧸', texts: months<=3 ? ['Tummy time: 3-5 min with high-contrast toys','Neck strengthening: hold baby upright during burping'] : months<=6 ? ['Rolling practice: place toy just out of reach','Reaching & grasping: offer easy-hold rattles'] : months<=12 ? ['Crawling obstacle course with soft cushions','Pulling to stand using sturdy furniture'] : ['Indoor obstacle climbing play','Dancing & balance games'] },
-          { category:'Motor', emoji:'🏃', texts: months<=3 ? ['Arm push-ups during tummy time','Head tracking with colorful objects'] : months<=6 ? ['Supported sitting practice','Foot kicking games with soft balls'] : months<=12 ? ['Cruising along furniture','First steps with push-toy'] : ['Jumping, hopping, running games','Pedal tricycle practice'] }
+          { category:'Motor', emoji:'🏃', texts: months<=3 ? ['Arm push-ups during tummy time','Head tracking with colorful objects'] : months<=6 ? ['Supported sitting practice','Foot kicking games with soft balls'] : months<=12 ? ['Cruising along furniture','First steps with push-toy'] : ['Jumping, hopping, running games','Pedal tricycle practice'] },
+          { category:'Motor', emoji:'🤸', texts: months<=3 ? ['Gentle leg cycling','Head control practice'] : months<=6 ? ['Supported standing','Reaching across midline'] : months<=12 ? ['Standing without support','Kicking balls'] : ['Yoga poses for kids','Obstacle course relay'] }
         ],
         1: [ // Monday - Language & Communication
           { category:'Language', emoji:'🗣️', texts: months<=3 ? ['Talk during feedings: name body parts','Sing nursery rhymes with facial expressions'] : months<=6 ? ['Imitate baby sounds to encourage babbling','Read board books with bright pictures'] : months<=12 ? ['Point to objects and name them clearly','Practice simple sign language (more, milk)'] : ['Ask "Where is the dog?" picture questions','Read stories and ask about characters'] },
-          { category:'Language', emoji:'📖', texts: months<=3 ? ['Make animal sounds during play','Narrate daily routines out loud'] : months<=6 ? ['Play peek-a-boo with words','Read texture books together'] : months<=12 ? ['Say "bye-bye" and wave consistently','Name foods during mealtime'] : ['Tell simple stories together','Sing songs with hand motions'] }
+          { category:'Language', emoji:'📖', texts: months<=3 ? ['Make animal sounds during play','Narrate daily routines out loud'] : months<=6 ? ['Play peek-a-boo with words','Read texture books together'] : months<=12 ? ['Say "bye-bye" and wave consistently','Name foods during mealtime'] : ['Tell simple stories together','Sing songs with hand motions'] },
+          { category:'Language', emoji:'🎤', texts: months<=3 ? ['Respond to coos with words','Sing lullabies softly'] : months<=6 ? ['Play sound matching games','Read board books aloud'] : months<=12 ? ['Name pictures in books','Say animal sounds'] : ['20 questions guessing game','Silly rhyming words game'] }
         ],
         2: [ // Tuesday - Social & Emotional
           { category:'Social', emoji:'💕', texts: months<=3 ? ['Make eye contact and smile warmly','Respond to coos with gentle conversation'] : months<=6 ? ['Play social games: peek-a-boo','Clap hands and cheer for baby'] : months<=12 ? ['Practice waving hello and goodbye','Encourage sharing toys with gentle guidance'] : ['Role-play caring for dolls/stuffed animals','Play turn-taking games'] },
-          { category:'Social', emoji:'🤗', texts: months<=3 ? ['Cuddle and sing softly together','Let baby see your smiling face often'] : months<=6 ? ['Play with other babies in safe setting','Name emotions: "Are you happy?"'] : months<=12 ? ['Offer comfort when baby is upset','Celebrate achievements with clapping'] : ['Practice patience games','Talk about feelings during play'] }
+          { category:'Social', emoji:'🤗', texts: months<=3 ? ['Cuddle and sing softly together','Let baby see your smiling face often'] : months<=6 ? ['Play with other babies in safe setting','Name emotions: "Are you happy?"'] : months<=12 ? ['Offer comfort when baby is upset','Celebrate achievements with clapping'] : ['Practice patience games','Talk about feelings during play'] },
+          { category:'Social', emoji:'👫', texts: months<=3 ? ['Gentle face-to-face time','Mirror play together'] : months<=6 ? ['Parallel play with other babies','Hand-over-hand games'] : months<=12 ? ['Group playdate','Help share toys'] : ['Cooperative building projects','Team scavenger hunts'] }
         ],
         3: [ // Wednesday - Cognitive
           { category:'Cognitive', emoji:'🧠', texts: months<=3 ? ['High-contrast card viewing (8-12 inches)','Shake rattle to teach cause & effect'] : months<=6 ? ['Peek-a-boo to teach object permanence','Offer safe mirrors for self-recognition'] : months<=12 ? ['Stack and knock down blocks','Shape sorter toys exploration'] : ['Simple puzzles with large pieces','Sorting games by color or shape'] },
-          { category:'Cognitive', emoji:'🔍', texts: months<=3 ? ['Track moving objects with eyes','Water play with cups in bath'] : months<=6 ? ['Drop and retrieve games','Explore different textures safely'] : months<=12 ? ['Hide toys under blankets to find','Simple cause-and-effect toys'] : ['Counting during daily activities','Nature walks: find leaves, rocks'] }
+          { category:'Cognitive', emoji:'🔍', texts: months<=3 ? ['Track moving objects with eyes','Water play with cups in bath'] : months<=6 ? ['Drop and retrieve games','Explore different textures safely'] : months<=12 ? ['Hide toys under blankets to find','Simple cause-and-effect toys'] : ['Counting during daily activities','Nature walks: find leaves, rocks'] },
+          { category:'Cognitive', emoji:'🧩', texts: months<=3 ? ['Track objects side to side','Explore soft textures'] : months<=6 ? ['Stack rings on post','Explore cause & effect toys'] : months<=12 ? ['Simple matching games','Nesting cups play'] : ['Memory card matching','Science experiments (colors, magnets)'] }
         ],
         4: [ // Thursday - Nutrition
           { category:'Nutrition', emoji:'🥑', texts: months<=3 ? ['Watch for hunger cues: rooting, sucking','Practice paced bottle feeding'] : months<=6 ? ['Introduce single-veggie purees','Let baby explore food textures'] : months<=12 ? ['Offer soft finger foods: banana, avocado','Practice self-feeding with spoon'] : ['Involve in meal prep (washing veggies)','Talk about food colors and tastes'] },
-          { category:'Nutrition', emoji:'🥦', texts: months<=3 ? ['Burp after every 2-3 oz','Space feeds 2.5-3 hours apart'] : months<=6 ? ['Try new puree flavors each day','Offer water in sippy cup'] : months<=12 ? ['Family meals: eat same foods together','Offer 3 meals + 2 snacks daily'] : ['Help set the table','Try one new food each week'] }
+          { category:'Nutrition', emoji:'🥦', texts: months<=3 ? ['Burp after every 2-3 oz','Space feeds 2.5-3 hours apart'] : months<=6 ? ['Try new puree flavors each day','Offer water in sippy cup'] : months<=12 ? ['Family meals: eat same foods together','Offer 3 meals + 2 snacks daily'] : ['Help set the table','Try one new food each week'] },
+          { category:'Nutrition', emoji:'🍽️', texts: months<=3 ? ['Observe feeding cues','Establish feeding rhythm'] : months<=6 ? ['Taste exploration time','Safe feeding position practice'] : months<=12 ? ['Practice using sippy cup','Self-feeding practice'] : ['Cook simple recipes together','Learn about food groups'] }
         ],
         5: [ // Friday - Motor Skills
           { category:'Motor', emoji:'💪', texts: months<=3 ? ['Gentle leg cycling exercises','Practice supported head lifting'] : months<=6 ? ['Baby-safe mirror play during tummy time','Offer teething toys to chew'] : months<=12 ? ['Practice standing without support','Kick soft balls across the room'] : ['Ball throwing and catching practice','Drawing with chunky crayons'] },
-          { category:'Motor', emoji:'🤸', texts: months<=3 ? ['Bicycle legs during diaper changes','Hold baby upright to strengthen core'] : months<=6 ? ['Reaching across midline for toys','Supported bouncing on knees'] : months<=12 ? ['Climbing soft play structures','Walking while carrying soft toys'] : ['Dancing to music together','Jumping on soft surfaces'] }
+          { category:'Motor', emoji:'🤸', texts: months<=3 ? ['Bicycle legs during diaper changes','Hold baby upright to strengthen core'] : months<=6 ? ['Reaching across midline for toys','Supported bouncing on knees'] : months<=12 ? ['Climbing soft play structures','Walking while carrying soft toys'] : ['Dancing to music together','Jumping on soft surfaces'] },
+          { category:'Motor', emoji:'🚴', texts: months<=3 ? ['Arm stretching gently','Leg kick games'] : months<=6 ? ['Push-toy practice','Reaching for objects'] : months<=12 ? ['Riding toy practice','Ball pit play'] : ['Bike riding practice','Playground climbing'] }
         ],
         6: [ // Saturday - Mixed Focus
           { category:'Cognitive', emoji:'🎨', texts: months<=3 ? ['Finger painting with edible paints','Listen to different music genres'] : months<=6 ? ['Sensory bags with water & glitter','Bang pots and pans for sounds'] : months<=12 ? ['Simple art: crayons on paper','Water table play with cups'] : ['Arts & crafts projects','Building with large blocks'] },
-          { category:'Social', emoji:'👨‍👩‍👧', texts: months<=3 ? ['Family cuddle time on the floor','Video call with grandparents'] : months<=6 ? ['Playgroup or park visit','Take photos together'] : months<=12 ? ['Playdate with age-matched friend','Help with simple household tasks'] : ['Family game night','Cook a simple recipe together'] }
+          { category:'Social', emoji:'👨‍👩‍👧', texts: months<=3 ? ['Family cuddle time on the floor','Video call with grandparents'] : months<=6 ? ['Playgroup or park visit','Take photos together'] : months<=12 ? ['Playdate with age-matched friend','Help with simple household tasks'] : ['Family game night','Cook a simple recipe together'] },
+          { category:'Cognitive', emoji:'🎶', texts: months<=3 ? ['Listen to calming music','Soft singing time'] : months<=6 ? ['Musical instrument exploration','Rhythm clapping games'] : months<=12 ? ['Dance to different beats','Music & movement time'] : ['Karaoke singing','Make homemade instruments'] }
         ]
       };
       const day = activities[dayIdx] || activities[0];
@@ -1573,6 +1590,11 @@
       if (!baby) return;
       document.getElementById('profileName').textContent = baby.name;
       document.getElementById('profileAge').textContent = getAgeInMonths() + ' months old';
+      if (baby.photo) {
+        document.getElementById('profileAvatar').innerHTML = '<img src="' + baby.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+      } else {
+        document.getElementById('profileAvatar').innerHTML = '😊';
+      }
     }
 
     function updateSavedAnswers() {
@@ -1602,10 +1624,10 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         const dataUrl = e.target.result;
-        localStorage.setItem('babyPhoto', dataUrl);
+        baby.photo = dataUrl;
+        localStorage.setItem('children', JSON.stringify(children));
         document.getElementById('profileAvatar').innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
-        const homeAvatar = document.querySelector('.avatar');
-        if (homeAvatar) homeAvatar.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+        updateChildrenList();
       };
       reader.readAsDataURL(file);
     }
@@ -1615,16 +1637,15 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
-        localStorage.setItem('babyPhoto', e.target.result);
+        pendingChildPhoto = e.target.result;
         document.getElementById('onboardAvatar').innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
       };
       reader.readAsDataURL(file);
     }
 
     function loadPhoto() {
-      const photo = localStorage.getItem('babyPhoto');
-      if (photo) {
-        document.getElementById('profileAvatar').innerHTML = '<img src="' + photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+      if (baby && baby.photo) {
+        document.getElementById('profileAvatar').innerHTML = '<img src="' + baby.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
       }
     }
 
