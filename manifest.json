@@ -1,4 +1,5 @@
-"name": "Baby Bud AI Pro",
+{
+  "name": "Baby Bud AI Pro",
   "short_name": "BabyBud",
   "description": "AI Parenting Companion for New Parents",
   "id": "/baby-bud-pwa/",
