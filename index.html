@@ -703,15 +703,22 @@
   <div id="feedingGuide" class="screen">
     <button class="back-btn" onclick="navigate('home')">← Back</button>
     <div class="header"><h2>🥦 Feeding Guide</h2></div>
-    <p style="color:#636E72;margin-bottom:16px;text-align:center">Age-appropriate foods and schedules</p>
+    <p style="color:#636E72;margin-bottom:16px;text-align:center">Age-appropriate foods and weekly meal plans</p>
 
     <div id="feedingAgeNote" style="background:linear-gradient(135deg,#FBBF24,#F59E0B);color:#78350F;border-radius:12px;padding:12px;margin-bottom:16px;text-align:center;font-size:14px;font-weight:600"></div>
 
     <div id="foodList"></div>
 
     <div class="form-card" style="margin-top:16px">
-      <h3 style="margin-bottom:12px">📋 Sample Daily Schedule</h3>
+      <h3 style="margin-bottom:8px">📋 Sample Daily Schedule</h3>
       <div id="sampleSchedule"></div>
+    </div>
+
+    <div id="weeklyMealsSection" class="form-card" style="margin-top:16px;display:none">
+      <h3 style="margin-bottom:8px">🍽️ Weekly Meal Plan</h3>
+      <p style="font-size:11px;color:#636E72;margin-bottom:12px">Healthy meals & snacks for each day of the week</p>
+      <div id="weekDaySelector" style="display:flex;gap:4px;margin-bottom:12px;overflow-x:auto"></div>
+      <div id="weeklyMealList"></div>
     </div>
   </div>
 
@@ -1914,6 +1921,84 @@
       }
     };
 
+    // Weekly meal plan by age group
+    const weeklyMealPlan = {
+      '6-12': {
+        0: { day:'Monday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Oatmeal with mashed banana', snack:'Steamed sweet potato cubes' },
+          { time:'12:00 PM', emoji:'🍗', meal:'Chicken & sweet potato puree', snack:'Soft pear slices' },
+          { time:'5:30 PM', emoji:'🥦', meal:'Broccoli & rice mash', snack:'Mashed avocado on toast fingers' }
+        ]},
+        1: { day:'Tuesday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Rice cereal with apple puree', snack:'Steamed carrot sticks' },
+          { time:'12:00 PM', emoji:'🥚', meal:'Scrambled egg with soft rice', snack:'Mashed banana' },
+          { time:'5:30 PM', emoji:'🍠', meal:'Sweet potato & chicken mash', snack:'Soft cheese cubes' }
+        ]},
+        2: { day:'Wednesday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Oatmeal with pear puree', snack:'Steamed zucchini slices' },
+          { time:'12:00 PM', emoji:'🍗', meal:'Shredded chicken with peas', snack:'Peach puree' },
+          { time:'5:30 PM', emoji:'🎃', meal:'Pumpkin & oatmeal blend', snack:'Soft mango chunks' }
+        ]},
+        3: { day:'Thursday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Banana oatmeal', snack:'Steamed broccoli florets' },
+          { time:'12:00 PM', emoji:'🐟', meal:'Flaky fish with mashed potato', snack:'Blueberry halves' },
+          { time:'5:30 PM', emoji:'🫘', meal:'Mashed bean & rice bowl', snack:'Toast with thin avocado' }
+        ]},
+        4: { day:'Friday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Rice cereal with mango puree', snack:'Soft banana chunks' },
+          { time:'12:00 PM', emoji:'🍗', meal:'Chicken & carrot puree', snack:'Steamed apple slices' },
+          { time:'5:30 PM', emoji:'🥦', meal:'Broccoli & egg mash', snack:'Mashed sweet potato' }
+        ]},
+        5: { day:'Saturday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Pumpkin oatmeal', snack:'Pear & cheese bites' },
+          { time:'12:00 PM', emoji:'🍝', meal:'Soft pasta with veggie sauce', snack:'Soft watermelon cubes' },
+          { time:'5:30 PM', emoji:'🍗', meal:'Chicken & rice with peas', snack:'Avocado toast fingers' }
+        ]},
+        6: { day:'Sunday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Banana pancake bites (mashed)', snack:'Steamed carrot sticks' },
+          { time:'12:00 PM', emoji:'🥚', meal:'Scrambled egg with sweet potato', snack:'Mango puree' },
+          { time:'5:30 PM', emoji:'🐟', meal:'Fish & potato mash', snack:'Soft peach slices' }
+        ]}
+      },
+      '12-24': {
+        0: { day:'Monday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Scrambled eggs with toast strips', snack:'Banana & yogurt' },
+          { time:'12:00 PM', emoji:'🌮', meal:'Mini bean & cheese quesadilla', snack:'Steamed broccoli with hummus' },
+          { time:'5:30 PM', emoji:'🍗', meal:'Shredded chicken with rice & peas', snack:'Blueberries & cheese cubes' }
+        ]},
+        1: { day:'Tuesday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Oatmeal with berries & honey drizzle', snack:'Apple slices with peanut butter' },
+          { time:'12:00 PM', emoji:'🍝', meal:'Pasta with mild tomato sauce & ground turkey', snack:'Cucumber sticks & cream cheese' },
+          { time:'5:30 PM', emoji:'🐟', meal:'Flaky fish with mashed sweet potato & corn', snack:'Yogurt with mashed fruit' }
+        ]},
+        2: { day:'Wednesday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Banana pancakes with syrup', snack:'Cheese & cracker bites' },
+          { time:'12:00 PM', emoji:'🥪', meal:'Turkey & avocado mini sandwich', snack:'Steamed carrot sticks' },
+          { time:'5:30 PM', emoji:'🍛', meal:'Mild chicken curry with soft rice', snack:'Peach slices & yogurt' }
+        ]},
+        3: { day:'Thursday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'French toast sticks with fruit', snack:'Hummus with soft pita strips' },
+          { time:'12:00 PM', emoji:'🌮', meal:'Bean & cheese soft taco', snack:'Steamed edamame' },
+          { time:'5:30 PM', emoji:'🍗', meal:'Baked chicken with quinoa & broccoli', snack:'Mango & yogurt bites' }
+        ]},
+        4: { day:'Friday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Yogurt parfait with granola & berries', snack:'Soft banana with almond butter' },
+          { time:'12:00 PM', emoji:'🍝', meal:'Pasta with veggie & cheese sauce', snack:'Cucumber & cream cheese' },
+          { time:'5:30 PM', emoji:'🐟', meal:'Fish fingers with mashed potato & peas', snack:'Watermelon cubes' }
+        ]},
+        5: { day:'Saturday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Veggie egg muffins with toast', snack:'Strawberry & yogurt' },
+          { time:'12:00 PM', emoji:'🍕', meal:'Mini pizza with veggie toppings', snack:'Apple slices & cheese' },
+          { time:'5:30 PM', emoji:'🍛', meal:'Mild beef stew with soft veggies & rice', snack:'Banana bread bites' }
+        ]},
+        6: { day:'Sunday', meals:[
+          { time:'8:00 AM', emoji:'🥣', meal:'Blueberry oatmeal pancakes', snack:'Peach & yogurt cups' },
+          { time:'12:00 PM', emoji:'🥪', meal:'Cream cheese & cucumber sandwich strips', snack:'Steamed corn kernels' },
+          { time:'5:30 PM', emoji:'🍗', meal:'Roasted chicken with sweet potato & green beans', snack:'Mixed berry bowl' }
+        ]}
+      }
+    };
+
     function getBabyAgeMonths() {
       if (!baby || !baby.birthdate) return 0;
       const b = new Date(baby.birthdate);
@@ -1941,6 +2026,43 @@
       document.getElementById('sampleSchedule').innerHTML = guide.schedule.map(s =>
         '<div class="schedule-row"><span class="s-time">' + s.time + '</span><span class="s-emoji">' + s.emoji + '</span><span>' + s.action + '</span></div>'
       ).join('');
+
+      // Weekly meals for 6+ months
+      const weekSection = document.getElementById('weeklyMealsSection');
+      const weekPlan = months >= 6 && months < 12 ? weeklyMealPlan['6-12'] : months >= 12 ? weeklyMealPlan['12-24'] : null;
+      if (weekPlan) {
+        weekSection.style.display = 'block';
+        const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const todayIdx = (new Date().getDay() + 6) % 7;
+        const dayBtns = document.getElementById('weekDaySelector');
+        dayBtns.innerHTML = dayNames.map((d, i) =>
+          '<button onclick="showFeedingDay(' + i + ')" data-fday="' + i + '" style="padding:6px 10px;border-radius:8px;border:2px solid ' + (i === todayIdx ? '#22C55E' : '#E5E7EB') + ';background:' + (i === todayIdx ? '#22C55E' : '#fff') + ';color:' + (i === todayIdx ? '#fff' : '#636E72') + ';font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">' + d + '</button>'
+        ).join('');
+        showFeedingDay(todayIdx);
+      } else {
+        weekSection.style.display = 'none';
+      }
+    }
+
+    function showFeedingDay(dayIdx) {
+      const months = getBabyAgeMonths();
+      const weekPlan = months < 12 ? weeklyMealPlan['6-12'] : weeklyMealPlan['12-24'];
+      const dayData = weekPlan[dayIdx];
+      document.querySelectorAll('#weekDaySelector button').forEach(b => {
+        const d = parseInt(b.dataset.fday);
+        b.style.border = '2px solid ' + (d === dayIdx ? '#22C55E' : '#E5E7EB');
+        b.style.background = d === dayIdx ? '#22C55E' : '#fff';
+        b.style.color = d === dayIdx ? '#fff' : '#636E72';
+      });
+      const el = document.getElementById('weeklyMealList');
+      el.innerHTML = '<div style="font-weight:bold;font-size:14px;color:#1E1B4B;margin-bottom:10px">' + dayData.day + '</div>' +
+        dayData.meals.map(m =>
+          '<div style="background:#F8FAFC;border-radius:10px;padding:10px;margin-bottom:8px;border-left:3px solid #22C55E">' +
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:12px;color:#636E72;font-weight:600">' + m.time + '</span><span style="font-size:16px">' + m.emoji + '</span></div>' +
+          '<div style="font-size:13px;font-weight:600;color:#1E1B4B;margin-bottom:4px">' + m.meal + '</div>' +
+          '<div style="font-size:11px;color:#636E72">Snack: ' + m.snack + '</div>' +
+          '</div>'
+        ).join('');
     }
 
     // === SCHEDULE & NOTIFICATIONS ===
