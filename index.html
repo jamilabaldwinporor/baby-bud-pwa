@@ -274,6 +274,11 @@
         <div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">📅</span><div><div style="font-weight:bold;font-size:14px;color:#1E1B4B">Suggested Daily Planner</div><div style="font-size:11px;color:#636E72" id="plannerSubtitle">Based on baby's age</div></div></div>
         <span style="font-size:10px;font-weight:bold;padding:3px 8px;border-radius:12px;background:#FEF3C7;color:#92400E" id="plannerBadge">PRO</span>
       </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:#F8FAFC;border-radius:10px">
+        <span style="font-size:14px">🌅</span>
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Wake Time:</span>
+        <input type="time" id="wakeTimeInput" value="07:00" onchange="updatePlannerWakeTime()" style="border:1px solid #E5E7EB;border-radius:8px;padding:4px 8px;font-size:13px;flex:1">
+      </div>
       <div id="dailyPlannerList"></div>
     </div>
 
@@ -988,52 +993,54 @@
     function updateDailyPlanner(months) {
       const el = document.getElementById('dailyPlannerList');
       document.getElementById('plannerSubtitle').textContent = 'Based on ' + (baby ? baby.name : 'baby') + '\'s age (' + months + 'm)';
-      const wakeHour = 7;
-      const wakeMin = 0;
+      const wakeInput = document.getElementById('wakeTimeInput');
+      const savedWake = localStorage.getItem('wakeTime') || '07:00';
+      wakeInput.value = savedWake;
+      const [wakeHour, wakeMin] = savedWake.split(':').map(Number);
       let items = [];
       if (months <= 3) {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,0), desc:'Wake up & morning feed (breastmilk/formula 4-5 oz)', hours:0 },
-          { emoji:'🧸', time:formatTime(wakeHour,30), desc:'Tummy time: 3-5 min, high-contrast toys', hours:0.5 },
-          { emoji:'😴', time:formatTime(wakeHour+1,30), desc:'Nap (60-90 min wake window)', hours:1.5 },
-          { emoji:'🍼', time:formatTime(wakeHour+3,30), desc:'Feed after nap (4-5 oz)', hours:3.5 },
-          { emoji:'🧸', time:formatTime(wakeHour+5,0), desc:'Milestone: tracking objects, social smiling', hours:5 },
-          { emoji:'🍼', time:formatTime(wakeHour+6,30), desc:'Afternoon feed', hours:6.5 },
-          { emoji:'🌙', time:formatTime(wakeHour+9,30), desc:'Bedtime routine & final feed', hours:9.5 }
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & morning feed (breastmilk/formula 4-5 oz)', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour,wakeMin+30), desc:'Tummy time: 3-5 min, high-contrast toys', hours:0.5 },
+          { emoji:'😴', time:formatTime(wakeHour+1,wakeMin+30), desc:'Nap (60-90 min wake window)', hours:1.5 },
+          { emoji:'🍼', time:formatTime(wakeHour+3,wakeMin+30), desc:'Feed after nap (4-5 oz)', hours:3.5 },
+          { emoji:'🧸', time:formatTime(wakeHour+5,wakeMin), desc:'Milestone: tracking objects, social smiling', hours:5 },
+          { emoji:'🍼', time:formatTime(wakeHour+6,wakeMin+30), desc:'Afternoon feed', hours:6.5 },
+          { emoji:'🌙', time:formatTime(wakeHour+9,wakeMin+30), desc:'Bedtime routine & final feed', hours:9.5 }
         ];
       } else if (months <= 6) {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,0), desc:'Wake up & morning feed (5-7 oz)', hours:0 },
-          { emoji:'🧸', time:formatTime(wakeHour,30), desc:'Milestone: tummy time, rolling practice', hours:0.5 },
-          { emoji:'🥣', time:formatTime(wakeHour+2,30), desc:'Solid food intro: puree tasting (1-2 tbsp)', hours:2.5 },
-          { emoji:'😴', time:formatTime(wakeHour+3,30), desc:'Morning nap (1.5-2 hr wake window)', hours:3.5 },
-          { emoji:'🍼', time:formatTime(wakeHour+5,30), desc:'Afternoon milk feed', hours:5.5 },
-          { emoji:'🧸', time:formatTime(wakeHour+6,30), desc:'Milestone: sitting practice, reaching toys', hours:6.5 },
-          { emoji:'🍼', time:formatTime(wakeHour+8,30), desc:'Evening feed', hours:8.5 },
-          { emoji:'🌙', time:formatTime(wakeHour+10,30), desc:'Bedtime routine & final feed', hours:10.5 }
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & morning feed (5-7 oz)', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour,wakeMin+30), desc:'Milestone: tummy time, rolling practice', hours:0.5 },
+          { emoji:'🥣', time:formatTime(wakeHour+2,wakeMin+30), desc:'Solid food intro: puree tasting (1-2 tbsp)', hours:2.5 },
+          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin+30), desc:'Morning nap (1.5-2 hr wake window)', hours:3.5 },
+          { emoji:'🍼', time:formatTime(wakeHour+5,wakeMin+30), desc:'Afternoon milk feed', hours:5.5 },
+          { emoji:'🧸', time:formatTime(wakeHour+6,wakeMin+30), desc:'Milestone: sitting practice, reaching toys', hours:6.5 },
+          { emoji:'🍼', time:formatTime(wakeHour+8,wakeMin+30), desc:'Evening feed', hours:8.5 },
+          { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & final feed', hours:10.5 }
         ];
       } else if (months <= 12) {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,0), desc:'Wake up & breakfast + milk feed', hours:0 },
-          { emoji:'🧸', time:formatTime(wakeHour,30), desc:'Milestone: sitting up, crawling practice', hours:0.5 },
-          { emoji:'😴', time:formatTime(wakeHour+2,30), desc:'Morning nap window', hours:2.5 },
-          { emoji:'🥑', time:formatTime(wakeHour+4,30), desc:'Lunch: soft foods + milk', hours:4.5 },
-          { emoji:'🫐', time:formatTime(wakeHour+6,0), desc:'Snack: yogurt & fruit', hours:6 },
-          { emoji:'🧸', time:formatTime(wakeHour+7,0), desc:'Milestone: pulling to stand, first steps', hours:7 },
-          { emoji:'🍲', time:formatTime(wakeHour+9,0), desc:'Family dinner + milk', hours:9 },
-          { emoji:'🌙', time:formatTime(wakeHour+11,0), desc:'Bedtime routine', hours:11 }
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast + milk feed', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour,wakeMin+30), desc:'Milestone: sitting up, crawling practice', hours:0.5 },
+          { emoji:'😴', time:formatTime(wakeHour+2,wakeMin+30), desc:'Morning nap window', hours:2.5 },
+          { emoji:'🥑', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: soft foods + milk', hours:4.5 },
+          { emoji:'🫐', time:formatTime(wakeHour+6,wakeMin), desc:'Snack: yogurt & fruit', hours:6 },
+          { emoji:'🧸', time:formatTime(wakeHour+7,wakeMin), desc:'Milestone: pulling to stand, first steps', hours:7 },
+          { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin), desc:'Family dinner + milk', hours:9 },
+          { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
         ];
       } else {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,0), desc:'Wake up & breakfast: egg, fruit & milk', hours:0 },
-          { emoji:'🍏', time:formatTime(wakeHour+2,30), desc:'Morning snack', hours:2.5 },
-          { emoji:'🧸', time:formatTime(wakeHour+3,30), desc:'Milestone: stacking blocks, saying words', hours:3.5 },
-          { emoji:'🥪', time:formatTime(wakeHour+4,0), desc:'Lunch: sandwich & veggies', hours:4 },
-          { emoji:'😴', time:formatTime(wakeHour+5,0), desc:'Quiet time / nap', hours:5 },
-          { emoji:'🥛', time:formatTime(wakeHour+7,0), desc:'Afternoon snack & milk', hours:7 },
-          { emoji:'🍛', time:formatTime(wakeHour+9,0), desc:'Dinner: family meal', hours:9 },
-          { emoji:'🧸', time:formatTime(wakeHour+10,0), desc:'Milestone: walking, waving bye-bye', hours:10 },
-          { emoji:'🌙', time:formatTime(wakeHour+11,0), desc:'Bedtime routine', hours:11 }
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: egg, fruit & milk', hours:0 },
+          { emoji:'🍏', time:formatTime(wakeHour+2,wakeMin+30), desc:'Morning snack', hours:2.5 },
+          { emoji:'🧸', time:formatTime(wakeHour+3,wakeMin+30), desc:'Milestone: stacking blocks, saying words', hours:3.5 },
+          { emoji:'🥪', time:formatTime(wakeHour+4,wakeMin), desc:'Lunch: sandwich & veggies', hours:4 },
+          { emoji:'😴', time:formatTime(wakeHour+5,wakeMin), desc:'Quiet time / nap', hours:5 },
+          { emoji:'🥛', time:formatTime(wakeHour+7,wakeMin), desc:'Afternoon snack & milk', hours:7 },
+          { emoji:'🍛', time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: family meal', hours:9 },
+          { emoji:'🧸', time:formatTime(wakeHour+10,wakeMin), desc:'Milestone: walking, waving bye-bye', hours:10 },
+          { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
         ];
       }
       el.innerHTML = items.map(i =>
@@ -1045,7 +1052,15 @@
       ).join('');
     }
 
+    function updatePlannerWakeTime() {
+      const val = document.getElementById('wakeTimeInput').value;
+      localStorage.setItem('wakeTime', val);
+      updateDailyPlanner(getBabyAgeMonths());
+    }
+
     function formatTime(hour, min) {
+      min = min % 60;
+      hour = (hour + Math.floor(min / 60)) % 24;
       const ampm = hour >= 12 ? 'PM' : 'AM';
       const displayH = hour % 12 === 0 ? 12 : hour % 12;
       return displayH + ':' + (min < 10 ? '0' : '') + min + ' ' + ampm;
