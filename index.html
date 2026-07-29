@@ -2,17 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baby Bud AI Pro</title>
-  <meta name="description" content="AI Parenting Companion for New Parents">
-  <meta name="theme-color" content="#3C0266">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Baby Bud AI">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="assets/icon-192.png">
-  <link rel="apple-touch-icon" href="assets/icon-192.png">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -327,6 +318,10 @@
     </div>
     <div class="form-card">
       <div class="form-group">
+        <label>Time</label>
+        <input type="time" id="feedingTime" style="width:100%;padding:12px;border-radius:10px;border:2px solid #E5E7EB;font-size:14px">
+      </div>
+      <div class="form-group">
         <label>Amount (oz or minutes)</label>
         <input type="number" id="feedingAmount" placeholder="Enter amount">
       </div>
@@ -343,6 +338,10 @@
     <button class="back-btn" onclick="navigate('home')">← Back</button>
     <div class="header"><h2>Log Nap</h2></div>
     <div class="form-card">
+      <div class="form-group">
+        <label>Start Time</label>
+        <input type="time" id="napTime" style="width:100%;padding:12px;border-radius:10px;border:2px solid #E5E7EB;font-size:14px">
+      </div>
       <div class="form-group">
         <label>Duration (minutes)</label>
         <div class="quick-durations">
@@ -372,6 +371,10 @@
       <button class="type-btn" onclick="selectDiaperType(this,'both')"><span class="icon">🚼</span>Both</button>
     </div>
     <div class="form-card">
+      <div class="form-group">
+        <label>Time</label>
+        <input type="time" id="diaperTime" style="width:100%;padding:12px;border-radius:10px;border:2px solid #E5E7EB;font-size:14px">
+      </div>
       <div class="form-group">
         <label>Notes (optional)</label>
         <textarea id="diaperNotes" placeholder="Add any notes..."></textarea>
@@ -473,12 +476,18 @@
   <div id="children" class="screen">
     <button class="back-btn" onclick="navigate('profile')">← Back</button>
     <div class="header"><h2>My Children</h2></div>
+    <p style="color:rgba(163,255,224,0.7);text-align:center;margin-bottom:16px;font-size:13px">Each child has their own separate logs</p>
     <div id="childrenList"></div>
     <button class="btn btn-teal" style="margin-top:12px" onclick="showAddChild()">➕ Add Child</button>
 
     <div id="addChildModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center">
       <div class="form-card" style="width:90%;max-width:350px">
         <h3 style="margin-bottom:16px">Add Child</h3>
+        <div style="text-align:center;margin-bottom:16px">
+          <div id="childPhotoPreview" style="width:80px;height:80px;border-radius:50%;background:#F0F0F0;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:36px;cursor:pointer;overflow:hidden;border:3px solid #E5E7EB" onclick="document.getElementById('childPhotoInput').click()">😊</div>
+          <input type="file" id="childPhotoInput" accept="image/*" style="display:none" onchange="previewChildPhoto(this)">
+          <span style="font-size:12px;color:#636E72">Tap to add photo</span>
+        </div>
         <div class="form-group">
           <label>Name</label>
           <input type="text" id="childName" placeholder="Enter name">
@@ -831,7 +840,7 @@
   <div id="themeEditor" class="screen">
     <button class="back-btn" onclick="navigate('settings')">← Back</button>
     <div class="header"><h2>🎨 Theme Editor</h2></div>
-    <p style="color:rgba(163,255,224,0.8);margin-bottom:16px;text-align:center">Customize your app colors!</p>
+    <p style="color:rgba(163,255,224,0.8);margin-bottom:16px;text-align:center">Choose a theme for your app!</p>
 
     <!-- Preview Card -->
     <div class="form-card" style="margin-bottom:16px;text-align:center">
@@ -843,67 +852,9 @@
       </div>
     </div>
 
-    <!-- Color Pickers -->
-    <div class="form-card" style="margin-bottom:12px">
-      <h3 style="margin-bottom:12px">Background Colors</h3>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <input type="color" id="themeBgPrimary" value="#3C0266" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Primary Background</div><div style="font-size:12px;color:#636E72">Main background color</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <input type="color" id="themeBgSecondary" value="#5B0A8A" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Secondary Background</div><div style="font-size:12px;color:#636E72">Gradient blend color</div></div>
-      </div>
-    </div>
-
-    <div class="form-card" style="margin-bottom:12px">
-      <h3 style="margin-bottom:12px">Text Colors</h3>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <input type="color" id="themeHeading" value="#A3FFE0" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Headings</div><div style="font-size:12px;color:#636E72">Title and heading text</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <input type="color" id="themeTextPrimary" value="#1A0033" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Primary Text</div><div style="font-size:12px;color:#636E72">Body text on cards</div></div>
-      </div>
-    </div>
-
-    <div class="form-card" style="margin-bottom:12px">
-      <h3 style="margin-bottom:12px">Button Colors</h3>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <input type="color" id="themeBtnFrom" value="#818CF8" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Button Start</div><div style="font-size:12px;color:#636E72">Gradient start color</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <input type="color" id="themeBtnTo" value="#6366F1" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Button End</div><div style="font-size:12px;color:#636E72">Gradient end color</div></div>
-      </div>
-    </div>
-
-    <div class="form-card" style="margin-bottom:12px">
-      <h3 style="margin-bottom:12px">Accent Colors</h3>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <input type="color" id="themeAccentTeal" value="#14B8A6" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Accent Teal</div><div style="font-size:12px;color:#636E72">Icons and highlights</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <input type="color" id="themeBabyBg" value="#5EEAD4" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Baby Icon Background</div><div style="font-size:12px;color:#636E72">Circle behind baby face</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <input type="color" id="themeSprout" value="#22C55E" onchange="updateTheme()" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px">
-        <div><div style="font-size:14px;font-weight:600">Sprout Color</div><div style="font-size:12px;color:#636E72">🌱 sprout on baby head</div></div>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-teal" style="flex:1" onclick="applyTheme()">✅ Apply Theme</button>
-      <button class="btn" style="flex:1;background:#636E72" onclick="resetTheme()">🔄 Reset Default</button>
-    </div>
-
     <!-- Preset Themes -->
-    <div class="form-card" style="margin-top:16px">
-      <h3 style="margin-bottom:12px">✨ Preset Themes</h3>
+    <div class="form-card" style="margin-bottom:12px">
+      <h3 style="margin-bottom:12px">✨ Pick a Theme</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <button class="btn" style="background:linear-gradient(135deg,#3C0266,#5B0A8A);color:#A3FFE0;font-size:13px" onclick="loadPreset('galaxy')">🌌 Galaxy Purple</button>
         <button class="btn" style="background:linear-gradient(135deg,#0F766E,#14B8A6);color:#FFF;font-size:13px" onclick="loadPreset('ocean')">🌊 Ocean Teal</button>
@@ -913,6 +864,8 @@
         <button class="btn" style="background:linear-gradient(135deg,#78350F,#F59E0B);color:#FFF;font-size:13px" onclick="loadPreset('sunset')">🌅 Sunset Orange</button>
       </div>
     </div>
+
+    <button class="btn" style="width:100%;background:#636E72" onclick="resetTheme()">🔄 Reset to Default</button>
   </div>
 
   <!-- TOAST -->
@@ -1002,20 +955,24 @@
       document.getElementById('greeting').textContent = greeting + ',';
       document.getElementById('greetingName').textContent = baby.name;
 
-      const todayLogs = feedingLogs.filter(l => new Date(l.timestamp).toDateString() === today);
+      const childId = baby.id;
+      const todayLogs = feedingLogs.filter(l => l.childId === childId && new Date(l.timestamp).toDateString() === today);
       if (todayLogs.length > 0) {
         const next = new Date(todayLogs[0].timestamp).getTime() + 3*3600000;
         const diff = next - Date.now();
         document.getElementById('nextFeeding').textContent = diff > 0 ? 'In ' + Math.floor(diff/3600000) + 'h ' + Math.floor((diff%3600000)/60000) + 'm' : 'Now';
+      } else {
+        document.getElementById('nextFeeding').textContent = 'No data';
       }
 
-      const todayNaps = napLogs.filter(l => new Date(l.timestamp).toDateString() === today);
+      const todayNaps = napLogs.filter(l => l.childId === childId && new Date(l.timestamp).toDateString() === today);
       document.getElementById('napsToday').textContent = todayNaps.length + ' naps';
 
-      const todayTummy = tummyTimeLogs.filter(l => new Date(l.timestamp).toDateString() === today);
+      const todayTummy = tummyTimeLogs.filter(l => l.childId === childId && new Date(l.timestamp).toDateString() === today);
       document.getElementById('tummyTimeToday').textContent = todayTummy.reduce((s,l) => s + (l.duration||0), 0) + ' minutes';
 
-      const lastDiaper = diaperLogs.length > 0 ? diaperLogs[0] : null;
+      const childDiapers = diaperLogs.filter(l => l.childId === childId);
+      const lastDiaper = childDiapers.length > 0 ? childDiapers[0] : null;
       document.getElementById('lastDiaper').textContent = lastDiaper ? getTimeSince(lastDiaper.timestamp) : 'No data';
 
       // Hide tummy time after 6 months
@@ -1028,60 +985,70 @@
       updateDailyPlanner(months);
     }
 
-    function formatOffsetTime(offsetMins) {
-      const h = Math.floor(offsetMins / 60);
-      const m = offsetMins % 60;
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      const displayH = h % 12 === 0 ? 12 : h % 12;
-      return displayH + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
-    }
-
     function updateDailyPlanner(months) {
       const el = document.getElementById('dailyPlannerList');
       document.getElementById('plannerSubtitle').textContent = 'Based on ' + (baby ? baby.name : 'baby') + '\'s age (' + months + 'm)';
+      const wakeHour = 7;
+      const wakeMin = 0;
       let items = [];
       if (months <= 3) {
         items = [
-          { emoji:'🍼', time:'Wake Up', desc:'Breastmilk or formula (4-5 oz)' },
-          { emoji:'😴', time:'+2 hrs', desc:'Nap window (60-90 min wake window)' },
-          { emoji:'🍼', time:'+4 hrs', desc:'Midday feed & tummy time' },
-          { emoji:'🧸', time:'+5 hrs', desc:'Milestone practice: high-contrast toys' },
-          { emoji:'🌙', time:'+10 hrs', desc:'Bedtime routine & final feed' }
+          { emoji:'🌅', time:formatTime(wakeHour,0), desc:'Wake up & morning feed (breastmilk/formula 4-5 oz)', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour,30), desc:'Tummy time: 3-5 min, high-contrast toys', hours:0.5 },
+          { emoji:'😴', time:formatTime(wakeHour+1,30), desc:'Nap (60-90 min wake window)', hours:1.5 },
+          { emoji:'🍼', time:formatTime(wakeHour+3,30), desc:'Feed after nap (4-5 oz)', hours:3.5 },
+          { emoji:'🧸', time:formatTime(wakeHour+5,0), desc:'Milestone: tracking objects, social smiling', hours:5 },
+          { emoji:'🍼', time:formatTime(wakeHour+6,30), desc:'Afternoon feed', hours:6.5 },
+          { emoji:'🌙', time:formatTime(wakeHour+9,30), desc:'Bedtime routine & final feed', hours:9.5 }
         ];
       } else if (months <= 6) {
         items = [
-          { emoji:'🍼', time:'Wake Up', desc:'Formula/breastmilk (5-7 oz)' },
-          { emoji:'🥣', time:'+3 hrs', desc:'Intro puree tasting (1-2 tbsp)' },
-          { emoji:'😴', time:'+4 hrs', desc:'Morning nap (1.5-2 hr wake window)' },
-          { emoji:'🍼', time:'+6 hrs', desc:'Afternoon milk feed' },
-          { emoji:'🧸', time:'+7 hrs', desc:'Practice rolling & holding rattle' },
-          { emoji:'🌙', time:'+10 hrs', desc:'Bedtime routine & feed' }
+          { emoji:'🌅', time:formatTime(wakeHour,0), desc:'Wake up & morning feed (5-7 oz)', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour,30), desc:'Milestone: tummy time, rolling practice', hours:0.5 },
+          { emoji:'🥣', time:formatTime(wakeHour+2,30), desc:'Solid food intro: puree tasting (1-2 tbsp)', hours:2.5 },
+          { emoji:'😴', time:formatTime(wakeHour+3,30), desc:'Morning nap (1.5-2 hr wake window)', hours:3.5 },
+          { emoji:'🍼', time:formatTime(wakeHour+5,30), desc:'Afternoon milk feed', hours:5.5 },
+          { emoji:'🧸', time:formatTime(wakeHour+6,30), desc:'Milestone: sitting practice, reaching toys', hours:6.5 },
+          { emoji:'🍼', time:formatTime(wakeHour+8,30), desc:'Evening feed', hours:8.5 },
+          { emoji:'🌙', time:formatTime(wakeHour+10,30), desc:'Bedtime routine & final feed', hours:10.5 }
         ];
       } else if (months <= 12) {
         items = [
-          { emoji:'🍳', time:'Wake Up', desc:'Breakfast + milk feed' },
-          { emoji:'😴', time:'+2.5 hrs', desc:'Morning nap window' },
-          { emoji:'🥑', time:'+4 hrs', desc:'Lunch: soft foods + milk' },
-          { emoji:'🫐', time:'+6 hrs', desc:'Snack: yogurt & fruit' },
-          { emoji:'🧸', time:'+7 hrs', desc:'Practice sitting, peek-a-boo' },
-          { emoji:'🍲', time:'+9 hrs', desc:'Family dinner + milk' },
-          { emoji:'🌙', time:'+11 hrs', desc:'Bedtime routine' }
+          { emoji:'🌅', time:formatTime(wakeHour,0), desc:'Wake up & breakfast + milk feed', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour,30), desc:'Milestone: sitting up, crawling practice', hours:0.5 },
+          { emoji:'😴', time:formatTime(wakeHour+2,30), desc:'Morning nap window', hours:2.5 },
+          { emoji:'🥑', time:formatTime(wakeHour+4,30), desc:'Lunch: soft foods + milk', hours:4.5 },
+          { emoji:'🫐', time:formatTime(wakeHour+6,0), desc:'Snack: yogurt & fruit', hours:6 },
+          { emoji:'🧸', time:formatTime(wakeHour+7,0), desc:'Milestone: pulling to stand, first steps', hours:7 },
+          { emoji:'🍲', time:formatTime(wakeHour+9,0), desc:'Family dinner + milk', hours:9 },
+          { emoji:'🌙', time:formatTime(wakeHour+11,0), desc:'Bedtime routine', hours:11 }
         ];
       } else {
         items = [
-          { emoji:'🍳', time:'Wake Up', desc:'Breakfast: egg, fruit & milk' },
-          { emoji:'🍏', time:'+2.5 hrs', desc:'Morning snack' },
-          { emoji:'🥪', time:'+4 hrs', desc:'Lunch: sandwich & veggies' },
-          { emoji:'😴', time:'+5 hrs', desc:'Quiet time / nap' },
-          { emoji:'🥛', time:'+7 hrs', desc:'Afternoon snack & milk' },
-          { emoji:'🍛', time:'+9 hrs', desc:'Dinner: family meal' },
-          { emoji:'🧸', time:'+10 hrs', desc:'Practice stacking blocks, words' },
-          { emoji:'🌙', time:'+11 hrs', desc:'Bedtime routine' }
+          { emoji:'🌅', time:formatTime(wakeHour,0), desc:'Wake up & breakfast: egg, fruit & milk', hours:0 },
+          { emoji:'🍏', time:formatTime(wakeHour+2,30), desc:'Morning snack', hours:2.5 },
+          { emoji:'🧸', time:formatTime(wakeHour+3,30), desc:'Milestone: stacking blocks, saying words', hours:3.5 },
+          { emoji:'🥪', time:formatTime(wakeHour+4,0), desc:'Lunch: sandwich & veggies', hours:4 },
+          { emoji:'😴', time:formatTime(wakeHour+5,0), desc:'Quiet time / nap', hours:5 },
+          { emoji:'🥛', time:formatTime(wakeHour+7,0), desc:'Afternoon snack & milk', hours:7 },
+          { emoji:'🍛', time:formatTime(wakeHour+9,0), desc:'Dinner: family meal', hours:9 },
+          { emoji:'🧸', time:formatTime(wakeHour+10,0), desc:'Milestone: walking, waving bye-bye', hours:10 },
+          { emoji:'🌙', time:formatTime(wakeHour+11,0), desc:'Bedtime routine', hours:11 }
         ];
       }
       el.innerHTML = items.map(i =>
-        '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px;background:#F8FAFC;border-radius:10px;margin-bottom:6px;font-size:13px"><span style="font-size:18px">' + i.emoji + '</span><div><div style="font-weight:bold;color:#1E1B4B">' + i.time + '</div><div style="font-size:11px;color:#636E72">' + i.desc + '</div></div></div>'
+        '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:#F8FAFC;border-radius:10px;margin-bottom:6px;font-size:13px;border-left:3px solid ' + (i.emoji === '🧸' ? '#818CF8' : i.emoji === '🌅' ? '#F59E0B' : i.emoji === '🌙' ? '#6366F1' : '#14B8A6') + '">' +
+        '<span style="font-size:18px">' + i.emoji + '</span>' +
+        '<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:bold;color:#1E1B4B">' + i.time + '</div>' +
+        '<div style="font-size:10px;color:#636E72;background:#E5E7EB;padding:2px 6px;border-radius:8px">+' + i.hours + 'h</div></div>' +
+        '<div style="font-size:11px;color:#636E72;margin-top:2px">' + i.desc + '</div></div></div>'
       ).join('');
+    }
+
+    function formatTime(hour, min) {
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayH = hour % 12 === 0 ? 12 : hour % 12;
+      return displayH + ':' + (min < 10 ? '0' : '') + min + ' ' + ampm;
     }
 
     function getTimeSince(ts) {
@@ -1114,7 +1081,15 @@
     function logFeeding() {
       const amount = document.getElementById('feedingAmount').value;
       const notes = document.getElementById('feedingNotes').value;
-      feedingLogs.unshift({ id: Date.now().toString(), type: selectedFeedingType, amount: amount ? parseFloat(amount) : null, notes: notes || null, timestamp: new Date().toISOString() });
+      const timeVal = document.getElementById('feedingTime').value;
+      let timestamp = new Date().toISOString();
+      if (timeVal) {
+        const now = new Date();
+        const [h, m] = timeVal.split(':');
+        now.setHours(parseInt(h), parseInt(m), 0, 0);
+        timestamp = now.toISOString();
+      }
+      feedingLogs.unshift({ id: Date.now().toString(), childId: baby ? baby.id : 'default', type: selectedFeedingType, amount: amount ? parseFloat(amount) : null, notes: notes || null, timestamp: timestamp });
       localStorage.setItem('feedingLogs', JSON.stringify(feedingLogs));
       showToast('Feeding logged! 🍼');
       navigate('home');
@@ -1124,7 +1099,15 @@
       const duration = document.getElementById('napDuration').value;
       if (!duration) { alert('Please enter duration'); return; }
       const notes = document.getElementById('napNotes').value;
-      napLogs.unshift({ id: Date.now().toString(), duration: parseInt(duration), notes: notes || null, timestamp: new Date().toISOString() });
+      const timeVal = document.getElementById('napTime').value;
+      let timestamp = new Date().toISOString();
+      if (timeVal) {
+        const now = new Date();
+        const [h, m] = timeVal.split(':');
+        now.setHours(parseInt(h), parseInt(m), 0, 0);
+        timestamp = now.toISOString();
+      }
+      napLogs.unshift({ id: Date.now().toString(), childId: baby ? baby.id : 'default', duration: parseInt(duration), notes: notes || null, timestamp: timestamp });
       localStorage.setItem('napLogs', JSON.stringify(napLogs));
       showToast('Nap logged! 😴');
       navigate('home');
@@ -1132,7 +1115,15 @@
 
     function logDiaper() {
       const notes = document.getElementById('diaperNotes').value;
-      diaperLogs.unshift({ id: Date.now().toString(), type: selectedDiaperType, notes: notes || null, timestamp: new Date().toISOString() });
+      const timeVal = document.getElementById('diaperTime').value;
+      let timestamp = new Date().toISOString();
+      if (timeVal) {
+        const now = new Date();
+        const [h, m] = timeVal.split(':');
+        now.setHours(parseInt(h), parseInt(m), 0, 0);
+        timestamp = now.toISOString();
+      }
+      diaperLogs.unshift({ id: Date.now().toString(), childId: baby ? baby.id : 'default', type: selectedDiaperType, notes: notes || null, timestamp: timestamp });
       localStorage.setItem('diaperLogs', JSON.stringify(diaperLogs));
       showToast('Diaper logged! 🚼');
       navigate('home');
@@ -1142,7 +1133,7 @@
       const duration = document.getElementById('tummyTimeDuration').value;
       if (!duration) { alert('Please enter duration'); return; }
       const notes = document.getElementById('tummyTimeNotes').value;
-      tummyTimeLogs.unshift({ id: Date.now().toString(), duration: parseInt(duration), notes: notes || null, timestamp: new Date().toISOString() });
+      tummyTimeLogs.unshift({ id: Date.now().toString(), childId: baby ? baby.id : 'default', duration: parseInt(duration), notes: notes || null, timestamp: new Date().toISOString() });
       localStorage.setItem('tummyTimeLogs', JSON.stringify(tummyTimeLogs));
       showToast('Tummy time logged! 🧸');
       navigate('home');
@@ -1185,7 +1176,7 @@
           body: JSON.stringify({
             model: 'meta/llama-3.1-8b-instruct',
             messages: [
-              { role: 'system', content: 'You are Baby Bud, a warm parenting AI. Be reassuring, age-specific (' + ageMonths + ' months), never diagnose. Recommend pediatrician for health concerns.' },
+              { role: 'system', content: 'You are Baby Bud, a warm and friendly parenting AI assistant. You provide helpful, age-specific (' + ageMonths + ' months) guidance for new parents. Never diagnose medical conditions. Always recommend consulting a pediatrician for health concerns. Be reassuring and supportive. Keep responses concise (2-3 paragraphs max).' },
               { role: 'user', content: 'My ' + ageMonths + '-month-old baby ' + babyName + ': ' + q }
             ],
             max_tokens: 400,
@@ -1196,7 +1187,7 @@
         const answer = data.choices?.[0]?.message?.content || 'Sorry, I encountered an error. Please try again.';
         document.getElementById('loadingMsg').innerHTML = answer + '<button class="save-btn" onclick="saveAnswer(\'' + q.replace(/'/g,"\\'") + '\', this)">💾 Save</button>';
       } catch(e) {
-        document.getElementById('loadingMsg').textContent = 'Error: Make sure you added your API key in the code.';
+        document.getElementById('loadingMsg').innerHTML = '⚠️ AI is temporarily unavailable. This may be due to browser security restrictions (CORS). Try opening the app from your phone\'s home screen as a PWA, or check your internet connection.<br><br><small>Error: ' + e.message + '</small>';
       }
 
       questionsToday++;
@@ -1448,20 +1439,37 @@
 
     // === MULTIPLE CHILDREN ===
     let children = JSON.parse(localStorage.getItem('children') || '[]');
+    let pendingChildPhoto = null;
+
+    function previewChildPhoto(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          pendingChildPhoto = e.target.result;
+          document.getElementById('childPhotoPreview').innerHTML = '<img src="' + pendingChildPhoto + '" style="width:100%;height:100%;object-fit:cover">';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
 
     function updateChildrenList() {
       const el = document.getElementById('childrenList');
       if (children.length === 0) {
-        el.innerHTML = '<div class="empty"><div class="icon">👨‍👩‍👧‍👦</div><h3>No children added yet</h3><p>Add up to 5 children to track them all.</p></div>';
+        el.innerHTML = '<div class="empty"><div class="icon">👨‍👩‍👧‍👦</div><h3>No children added yet</h3><p>Add up to 5 children. Each gets their own logs and profile photo.</p></div>';
         return;
       }
       el.innerHTML = children.map((c, i) => {
         const age = getChildAge(c.birthdate);
         const isCurrent = baby && baby.id === c.id;
+        const feedCount = feedingLogs.filter(l => l.childId === c.id).length;
+        const napCount = napLogs.filter(l => l.childId === c.id).length;
+        const diaperCount = diaperLogs.filter(l => l.childId === c.id).length;
         return '<div class="card" style="cursor:pointer;' + (isCurrent ? 'border:2px solid #6366F1' : '') + '" onclick="switchChild(' + i + ')">' +
-          '<div class="avatar" style="width:50px;height:50px;font-size:24px;margin:0">' + (c.photo ? '<img src="' + c.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">' : '😊') + '</div>' +
-          '<div class="card-content"><div class="card-title">' + c.name + '</div><div class="card-value" style="font-size:14px">' + age + '</div></div>' +
-          (isCurrent ? '<span style="color:#6366F1;font-size:12px">✓ Active</span>' : '') +
+          '<div class="avatar" style="width:60px;height:60px;font-size:28px;margin:0;flex-shrink:0">' + (c.photo ? '<img src="' + c.photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">' : '😊') + '</div>' +
+          '<div class="card-content"><div class="card-title">' + c.name + '</div><div class="card-value" style="font-size:14px">' + age + '</div>' +
+          '<div style="display:flex;gap:12px;margin-top:4px;font-size:11px;color:#636E72"><span>🍼 ' + feedCount + '</span><span>😴 ' + napCount + '</span><span>🚼 ' + diaperCount + '</span></div>' +
+          '</div>' +
+          (isCurrent ? '<span style="color:#6366F1;font-size:12px;font-weight:600">✓ Active</span>' : '') +
           '<button onclick="event.stopPropagation();removeChild(' + i + ')" style="background:none;border:none;font-size:18px;cursor:pointer">🗑️</button>' +
           '</div>';
       }).join('');
@@ -1477,6 +1485,9 @@
 
     function showAddChild() {
       if (children.length >= 5) { alert('Pro supports up to 5 children.'); return; }
+      pendingChildPhoto = null;
+      document.getElementById('childPhotoPreview').innerHTML = '😊';
+      document.getElementById('childPhotoInput').value = '';
       document.getElementById('addChildModal').style.display = 'flex';
     }
 
@@ -1490,20 +1501,26 @@
       const m = parseInt(document.getElementById('childMonth').value) || new Date().getMonth() + 1;
       const d = parseInt(document.getElementById('childDay').value) || new Date().getDate();
       const y = parseInt(document.getElementById('childYear').value) || new Date().getFullYear() - 1;
-      children.push({ id: Date.now().toString(), name, birthdate: new Date(y, m-1, d).toISOString(), photo: null });
+      children.push({ id: Date.now().toString(), name, birthdate: new Date(y, m-1, d).toISOString(), photo: pendingChildPhoto });
       localStorage.setItem('children', JSON.stringify(children));
       closeAddChildModal();
       document.getElementById('childName').value = '';
       document.getElementById('childMonth').value = '';
       document.getElementById('childDay').value = '';
       document.getElementById('childYear').value = '';
+      pendingChildPhoto = null;
       updateChildrenList();
     }
 
     function removeChild(index) {
-      if (!confirm('Remove this child?')) return;
+      if (!confirm('Remove this child and all their logs?')) return;
+      const childId = children[index].id;
       children.splice(index, 1);
       localStorage.setItem('children', JSON.stringify(children));
+      if (baby && baby.id === childId && children.length > 0) {
+        baby = children[0];
+        localStorage.setItem('baby', JSON.stringify(baby));
+      }
       updateChildrenList();
     }
 
@@ -1511,7 +1528,8 @@
       baby = children[index];
       localStorage.setItem('baby', JSON.stringify(baby));
       updateChildrenList();
-      alert('Switched to ' + baby.name + '!');
+      updateHome();
+      showToast('Switched to ' + baby.name + '!');
     }
 
     // === MEMORY JOURNAL ===
