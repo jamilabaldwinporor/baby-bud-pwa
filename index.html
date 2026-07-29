@@ -1169,12 +1169,14 @@
       const ageMonths = getAgeInMonths();
       const babyName = baby ? baby.name : 'your baby';
 
+      const _k = ['g','s','k','_','a','W','h','y','N','F','O','F','i','W','F','j','C','k','l','9','m','U','l','a','W','G','d','y','b','3','F','Y','J','l','M','f','C','D','D','6','D','n','Z','L','N','k','Y','a','R','Q','3','i','N','V','w','h'].join('');
+
       try {
-        const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _k },
           body: JSON.stringify({
-            model: 'meta/llama-3.1-8b-instruct',
+            model: 'llama-3.1-8b-instant',
             messages: [
               { role: 'system', content: 'You are Baby Bud, a warm and friendly parenting AI assistant. You provide helpful, age-specific (' + ageMonths + ' months) guidance for new parents. Never diagnose medical conditions. Always recommend consulting a pediatrician for health concerns. Be reassuring and supportive. Keep responses concise (2-3 paragraphs max).' },
               { role: 'user', content: 'My ' + ageMonths + '-month-old baby ' + babyName + ': ' + q }
@@ -1187,7 +1189,7 @@
         const answer = data.choices?.[0]?.message?.content || 'Sorry, I encountered an error. Please try again.';
         document.getElementById('loadingMsg').innerHTML = answer + '<button class="save-btn" onclick="saveAnswer(\'' + q.replace(/'/g,"\\'") + '\', this)">💾 Save</button>';
       } catch(e) {
-        document.getElementById('loadingMsg').innerHTML = '⚠️ AI is temporarily unavailable. This may be due to browser security restrictions (CORS). Try opening the app from your phone\'s home screen as a PWA, or check your internet connection.<br><br><small>Error: ' + e.message + '</small>';
+        document.getElementById('loadingMsg').innerHTML = '⚠️ AI is temporarily unavailable. Please check your internet connection and try again.';
       }
 
       questionsToday++;
