@@ -250,6 +250,10 @@
       <span style="color:#636E72">›</span>
     </div>
 
+    <div onclick="navigate('logHistory')" style="margin-top:8px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.15);text-align:center;cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,0.9)">
+      📋 View All Logs →
+    </div>
+
     <div class="section-title">Quick Log</div>
     <div class="quick-actions">
       <button class="quick-btn" onclick="navigate('feedingLog')"><span class="icon">🍼</span><span class="label">Feed</span></button>
@@ -807,6 +811,23 @@
   </div>
 
 
+  <!-- LOG HISTORY -->
+  <div id="logHistory" class="screen">
+    <button class="back-btn" onclick="navigate('home')">← Back</button>
+    <div class="header"><h2>📋 Log History</h2></div>
+    <p style="color:rgba(163,255,224,0.7);text-align:center;margin-bottom:12px;font-size:13px">All your feeding, nap, diaper & tummy time records</p>
+
+    <div style="display:flex;gap:6px;margin-bottom:16px;overflow-x:auto">
+      <button onclick="filterLogs('all')" class="log-filter-btn active" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;border:2px solid #818CF8;background:#818CF8;color:#fff;cursor:pointer">All</button>
+      <button onclick="filterLogs('feeding')" class="log-filter-btn" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;border:2px solid #E5E7EB;background:#fff;color:#636E72;cursor:pointer">🍼 Feeding</button>
+      <button onclick="filterLogs('nap')" class="log-filter-btn" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;border:2px solid #E5E7EB;background:#fff;color:#636E72;cursor:pointer">😴 Nap</button>
+      <button onclick="filterLogs('diaper')" class="log-filter-btn" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;border:2px solid #E5E7EB;background:#fff;color:#636E72;cursor:pointer">🚼 Diaper</button>
+      <button onclick="filterLogs('tummy')" class="log-filter-btn" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;border:2px solid #E5E7EB;background:#fff;color:#636E72;cursor:pointer">🧸 Tummy</button>
+    </div>
+
+    <div id="logHistoryList"></div>
+  </div>
+
   <!-- SETTINGS -->
   <div id="settings" class="screen">
     <button class="back-btn" onclick="navigate('home')">← Back</button>
@@ -1201,6 +1222,75 @@
       const h = Math.floor(diff/3600000);
       const m = Math.floor((diff%3600000)/60000);
       return h > 0 ? h + 'h ' + m + 'm ago' : m + 'm ago';
+    }
+
+    // === LOG HISTORY ===
+    let currentLogFilter = 'all';
+
+    function filterLogs(type) {
+      currentLogFilter = type;
+      document.querySelectorAll('.log-filter-btn').forEach(b => {
+        b.style.border = '2px solid ' + (b.textContent.includes(type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1)) ? '#818CF8' : '#E5E7EB');
+        b.style.background = b.textContent.includes(type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1)) ? '#818CF8' : '#fff';
+        b.style.color = b.textContent.includes(type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1)) ? '#fff' : '#636E72';
+      });
+      updateLogHistory();
+    }
+
+    function updateLogHistory() {
+      const childId = baby ? baby.id : 'default';
+      let allLogs = [];
+
+      if (currentLogFilter === 'all' || currentLogFilter === 'feeding') {
+        feedingLogs.filter(l => l.childId === childId).forEach(l => {
+          allLogs.push({ type:'feeding', icon:'🍼', title: (l.type === 'bottle' ? 'Bottle' : l.type === 'breast' ? 'Breast' : 'Solid') + (l.amount ? ' (' + l.amount + (l.type === 'bottle' ? ' oz)' : ' min)') : ''), time: l.timestamp, notes: l.notes });
+        });
+      }
+      if (currentLogFilter === 'all' || currentLogFilter === 'nap') {
+        napLogs.filter(l => l.childId === childId).forEach(l => {
+          allLogs.push({ type:'nap', icon:'😴', title: l.duration + ' minutes', time: l.timestamp, notes: l.notes });
+        });
+      }
+      if (currentLogFilter === 'all' || currentLogFilter === 'diaper') {
+        diaperLogs.filter(l => l.childId === childId).forEach(l => {
+          allLogs.push({ type:'diaper', icon:'🚼', title: l.type.charAt(0).toUpperCase() + l.type.slice(1), time: l.timestamp, notes: l.notes });
+        });
+      }
+      if (currentLogFilter === 'all' || currentLogFilter === 'tummy') {
+        tummyTimeLogs.filter(l => l.childId === childId).forEach(l => {
+          allLogs.push({ type:'tummy', icon:'🧸', title: l.duration + ' minutes', time: l.timestamp, notes: l.notes });
+        });
+      }
+
+      allLogs.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+      const el = document.getElementById('logHistoryList');
+      if (allLogs.length === 0) {
+        el.innerHTML = '<div class="empty"><div class="icon">📝</div><h3>No logs yet</h3><p>Start logging to see your history here!</p></div>';
+        return;
+      }
+
+      const grouped = {};
+      allLogs.forEach(log => {
+        const date = new Date(log.time).toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push(log);
+      });
+
+      el.innerHTML = Object.keys(grouped).map(date => {
+        return '<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:bold;color:#636E72;margin-bottom:8px;text-transform:uppercase">' + date + '</div>' +
+          grouped[date].map(log => {
+            const time = new Date(log.time).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+            const colors = { feeding:'#DBEAFE', nap:'#EDE9FE', diaper:'#FEF3C7', tummy:'#D1FAE5' };
+            return '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:' + (colors[log.type] || '#F3F4F6') + ';border-radius:10px;margin-bottom:6px">' +
+              '<span style="font-size:20px">' + log.icon + '</span>' +
+              '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#1E1B4B">' + log.title + '</div>' +
+              (log.notes ? '<div style="font-size:11px;color:#636E72">' + log.notes + '</div>' : '') +
+              '</div>' +
+              '<div style="font-size:11px;color:#636E72;white-space:nowrap">' + time + '</div>' +
+              '</div>';
+          }).join('') + '</div>';
+      }).join('');
     }
 
     // === LOGGING ===
@@ -2308,6 +2398,7 @@
       if (screen === 'feedingGuide') updateFeedingGuide();
       if (screen === 'scheduleNotif') initScheduleNotif();
       if (screen === 'themeEditor') loadThemeEditor();
+      if (screen === 'logHistory') updateLogHistory();
       if (screen === 'settings') updateSettings();
     };
 
