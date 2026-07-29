@@ -274,11 +274,13 @@
         <div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">📅</span><div><div style="font-weight:bold;font-size:14px;color:#1E1B4B">Suggested Daily Planner</div><div style="font-size:11px;color:#636E72" id="plannerSubtitle">Based on baby's age</div></div></div>
         <span style="font-size:10px;font-weight:bold;padding:3px 8px;border-radius:12px;background:#FEF3C7;color:#92400E" id="plannerBadge">PRO</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:#F8FAFC;border-radius:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 12px;background:#F8FAFC;border-radius:10px">
         <span style="font-size:14px">🌅</span>
-        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Wake Time:</span>
-        <input type="time" id="wakeTimeInput" value="07:00" onchange="updatePlannerWakeTime()" style="border:1px solid #E5E7EB;border-radius:8px;padding:4px 8px;font-size:13px;flex:1">
+        <span style="font-size:13px;font-weight:600;color:#1E1B4B">Wake:</span>
+        <input type="time" id="wakeTimeInput" value="07:00" onchange="updatePlannerWakeTime()" style="border:1px solid #E5E7EB;border-radius:8px;padding:4px 8px;font-size:13px">
+        <span style="font-size:12px;color:#636E72;margin-left:auto" id="plannerDayLabel"></span>
       </div>
+      <div id="daySelector" style="display:flex;gap:4px;margin-bottom:10px;overflow-x:auto"></div>
       <div id="dailyPlannerList"></div>
     </div>
 
@@ -891,17 +893,73 @@
     let selectedDurationField = '';
 
     const milestones = [
-      { title: 'First Social Smile', desc: 'Smiles back at caregivers when spoken to or cuddled.', min: 0, max: 3, category: 'Social & Emotional', activities: [{ text: 'Talk gently and make eye contact during feedings', completed: true }, { text: 'Smile closely so baby can focus on your face', completed: true }, { text: 'Respond warmly when baby makes cooing sounds', completed: false }] },
-      { title: 'Head Control & Tummy Time', desc: 'Pushes up on arms during tummy time and holds head up briefly.', min: 0, max: 3, category: 'Motor Skills', activities: [{ text: '3-5 minutes of supervised tummy time 3x daily', completed: true }, { text: 'Place colorful high-contrast toys in front of baby', completed: false }, { text: 'Support neck while sitting upright', completed: true }] },
-      { title: 'Rolling Over & Reaching', desc: 'Rolls from tummy to back and reaches out to grasp colorful toys.', min: 3, max: 6, category: 'Motor Skills', activities: [{ text: 'Encourage rolling by placing a squeaky toy just out of reach', completed: false }, { text: 'Offer safe, easy-to-grab wooden or silicone rattles', completed: false }, { text: 'Play peek-a-boo with a soft sensory blanket', completed: false }] },
-      { title: 'Babbling & Vocalizing', desc: 'Makes vowel sounds like "ooh" and "aah" and laughs out loud.', min: 3, max: 6, category: 'Language & Communication', activities: [{ text: 'Sing nursery rhymes with animated face expressions', completed: false }, { text: "Imitate baby's sounds to encourage conversation turns", completed: false }] },
-      { title: 'Sitting Up Unassisted', desc: 'Sits without support and transfers objects from one hand to another.', min: 6, max: 9, category: 'Motor Skills', activities: [{ text: 'Surround baby with soft cushions during sitting practice', completed: false }, { text: 'Hand two toys to see if baby passes one to free up a hand', completed: false }] },
-      { title: 'First Solid Foods & Pincer Prep', desc: 'Explores purees and finger foods with enthusiasm.', min: 6, max: 9, category: 'Nutrition & Sensory', activities: [{ text: 'Introduce single-ingredient vegetable purees (avocado, sweet potato)', completed: false }, { text: 'Allow safe tactile exploration with mess-friendly high chair meals', completed: false }] },
-      { title: 'Crawling & Standing Tall', desc: 'Crawls across the room and pulls self up to stand holding furniture.', min: 9, max: 12, category: 'Motor Skills', activities: [{ text: 'Set up a safe obstacle course with soft cushions', completed: false }, { text: 'Place sturdy coffee tables for baby to practice pulling up', completed: false }] },
-      { title: 'First Words & Waving Goodbye', desc: "Says first recognizable words ('Mama', 'Dada', 'Bye') and waves hand.", min: 9, max: 12, category: 'Language & Communication', activities: [{ text: 'Point to objects and name them clearly during walks', completed: false }, { text: "Practice waving 'Bye-bye' whenever family leaves the room", completed: false }] },
-      { title: 'First Independent Steps', desc: 'Walks independently and explores the environment with delight.', min: 12, max: 18, category: 'Motor Skills', activities: [{ text: 'Encourage barefoot walking indoors for sensory feedback', completed: false }, { text: 'Play with push-toys or soft balls to kick and chase', completed: false }] },
-      { title: 'Combining Words & Stacking Blocks', desc: 'Puts two words together and stacks 4+ blocks in a tower.', min: 18, max: 24, category: 'Cognitive & Language', activities: [{ text: "Read picture books together daily and ask 'Where is the dog?'", completed: false }, { text: 'Stack wooden blocks together and celebrate the knock-down!', completed: false }] },
+      // 0-3 months
+      { title: 'First Social Smile', desc: 'Smiles back at caregivers when spoken to or cuddled.', min: 0, max: 3, category: 'Social & Emotional', activities: ['Talk gently and make eye contact during feedings', 'Smile closely so baby can focus on your face', 'Respond warmly when baby makes cooing sounds'] },
+      { title: 'Head Control & Tummy Time', desc: 'Pushes up on arms during tummy time and holds head up briefly.', min: 0, max: 3, category: 'Gross Motor', activities: ['3-5 minutes of supervised tummy time 3x daily', 'Place colorful high-contrast toys in front of baby', 'Support neck while sitting upright'] },
+      { title: 'Tracking Objects', desc: 'Follows moving objects with eyes from side to side.', min: 0, max: 3, category: 'Cognitive', activities: ['Slowly move a colorful toy across baby\'s field of vision', 'Use black-and-white flashcards 6-12 inches from face', 'Hang a mobile above the crib for visual stimulation'] },
+      { title: 'Cooing & Vocalizing', desc: 'Makes vowel sounds like "ooh" and "aah".', min: 0, max: 3, category: 'Language & Communication', activities: ['Imitate baby\'s coos back to them', 'Sing soft lullabies during nap time', 'Talk narrate daily activities to baby'] },
+      { title: 'Opening & Closing Hands', desc: 'Opens and closes fists, begins to explore hand movements.', min: 0, max: 3, category: 'Fine Motor', activities: ['Place a soft rattle in baby\'s palm', 'Gently open baby\'s fist and place a texture toy inside', 'Play finger games by gently extending baby\'s fingers'] },
+      { title: 'Responding to Sounds', desc: 'Startles at loud sounds, turns toward familiar voices.', min: 0, max: 3, category: 'Sensory', activities: ['Play soft music and observe baby\'s reaction', 'Call baby\'s name from different rooms', 'Use a crinkle toy near baby to encourage listening'] },
+
+      // 3-6 months
+      { title: 'Rolling Over', desc: 'Rolls from tummy to back and back to tummy.', min: 3, max: 6, category: 'Gross Motor', activities: ['Place a toy just out of reach to encourage rolling', 'Practice tummy time with arms extended', 'Give baby space on a firm surface to practice'] },
+      { title: 'Reaching & Grasping', desc: 'Reaches for and grabs toys with purpose.', min: 3, max: 6, category: 'Fine Motor', activities: ['Offer easy-to-grab rattles and soft toys', 'Hang toys within reach during tummy time', 'Practice transferring toys between hands'] },
+      { title: 'Babbling Sounds', desc: 'Makes "ba-ba", "da-da" sounds and laughs out loud.', min: 3, max: 6, category: 'Language & Communication', activities: ['Repeat baby\'s babble sounds back to them', 'Read board books with bright pictures', 'Sing songs with hand motions like "Itsy Bitsy Spider"'] },
+      { title: 'Recognizing Familiar People', desc: 'Lights up when seeing parents, shows stranger anxiety.', min: 3, max: 6, category: 'Social & Emotional', activities: ['Play peek-a-boo to build object permanence', 'Let baby see new people from a safe distance first', 'Give warm greetings when entering the room'] },
+      { title: 'Exploring Textures', desc: 'Mouths objects, explores different textures with hands and mouth.', min: 3, max: 6, category: 'Sensory', activities: ['Offer safe teething toys with different textures', 'Let baby touch grass, water, fabric during supervised play', 'Provide crinkle books and soft cloth toys'] },
+      { title: 'Tracking Moving Objects', desc: 'Follows a toy moved in a circle or side to side.', min: 3, max: 6, category: 'Cognitive', activities: ['Move a colorful ball slowly in front of baby', 'Play with light-up toys that move', 'Use a mirror for baby to watch their own reflection'] },
+
+      // 6-9 months
+      { title: 'Sitting Up Unassisted', desc: 'Sits without support and transfers objects between hands.', min: 6, max: 9, category: 'Gross Motor', activities: ['Surround baby with cushions during sitting practice', 'Hand two toys to see if baby passes one to free a hand', 'Practice sitting on the floor with engaging toys'] },
+      { title: 'Pincer Grasp Starting', desc: 'Begins picking up small objects using thumb and finger.', min: 6, max: 9, category: 'Fine Motor', activities: ['Offer small puffs or Cheerios to practice picking up', 'Provide stacking rings to practice grasping', 'Let baby turn pages of a board book'] },
+      { title: 'Responding to Names', desc: 'Turns head when name is called, understands "no".', min: 6, max: 9, category: 'Language & Communication', activities: ['Call baby\'s name during play', 'Say "no" gently when reaching for off-limits items', 'Point to objects and name them clearly'] },
+      { title: 'Object Permanence', desc: 'Searches for toys that are hidden under a blanket.', min: 6, max: 9, category: 'Cognitive', activities: ['Play hide-and-seek with a toy under a cloth', 'Let baby watch you hide a toy and encourage finding it', 'Use nesting cups to show things going inside each other'] },
+      { title: 'Stranger Anxiety', desc: 'Shows distress around unfamiliar people, clings to parents.', min: 6, max: 9, category: 'Social & Emotional', activities: ['Let new people approach slowly while baby is in your lap', 'Comfort baby when they show anxiety, don\'t force interactions', 'Build familiarity by having the same few caregivers'] },
+      { title: 'First Solid Foods', desc: 'Explores purees and finger foods with enthusiasm.', min: 6, max: 9, category: 'Feeding & Nutrition', activities: ['Introduce single-ingredient vegetable purees', 'Offer soft finger foods like banana pieces', 'Let baby self-feed with hands for sensory exploration'] },
+
+      // 9-12 months
+      { title: 'Crawling & Pulling to Stand', desc: 'Crawls across the room and pulls self up holding furniture.', min: 9, max: 12, category: 'Gross Motor', activities: ['Set up a safe obstacle course with soft cushions', 'Place sturdy furniture for baby to practice pulling up', 'Encourage crawling by placing favorite toy across the room'] },
+      { title: 'Pointing & Gesturing', desc: 'Points at things they want, waves bye-bye, claps hands.', min: 9, max: 12, category: 'Fine Motor', activities: ['Wave "bye-bye" when leaving the room', 'Clap hands and encourage baby to copy', 'Point to objects and name them during walks'] },
+      { title: 'First Words', desc: 'Says "Mama", "Dada", "Bye" and follows simple directions.', min: 9, max: 12, category: 'Language & Communication', activities: ['Say "Where\'s baby?" and point to baby when responding', 'Name every object baby touches or points to', 'Read the same favorite book over and over daily'] },
+      { title: 'Cause & Effect Play', desc: 'Understands that actions produce results (push button = sound).', min: 9, max: 12, category: 'Cognitive', activities: ['Give baby cause-and-effect toys (pop-up, push-button)', 'Play with stacking cups by filling and dumping', 'Show baby how to press a toy to make it light up'] },
+      { title: 'Imitating Actions', desc: 'Copies clapping, waving, and other gestures they see.', min: 9, max: 12, category: 'Social & Emotional', activities: ['Clap together during songs', 'Play pat-a-cake and other imitation games', 'Model waving to family members'] },
+      { title: 'Drinking from a Cup', desc: 'Holds a sippy cup with help and begins sipping water.', min: 9, max: 12, category: 'Feeding & Nutrition', activities: ['Offer a small open cup with a tiny sip of water', 'Let baby hold a sippy cup with handles', 'Model drinking from a cup for baby to imitate'] },
+
+      // 12-18 months
+      { title: 'First Independent Steps', desc: 'Walks independently and explores the environment.', min: 12, max: 18, category: 'Gross Motor', activities: ['Encourage barefoot walking indoors for sensory feedback', 'Play with push-toys or soft balls to kick and chase', 'Walk holding baby\'s hands to build confidence'] },
+      { title: 'Stacking & Scribbling', desc: 'Stacks 2-3 blocks, makes first marks with crayon.', min: 12, max: 18, category: 'Fine Motor', activities: ['Provide large crayons for scribbling on paper', 'Show baby how to stack and knock down blocks', 'Offer shape sorters and simple puzzles'] },
+      { title: 'Following Directions', desc: 'Understands simple instructions like "give me the ball".', min: 12, max: 18, category: 'Language & Communication', activities: ['Give simple one-step commands during play', 'Point to body parts and name them', 'Read interactive books where baby points to pictures'] },
+      { title: 'Sorting Objects', desc: 'Groups toys by color, shape, or function.', min: 12, max: 18, category: 'Cognitive', activities: ['Provide color-sorting toys', 'Let baby separate soft vs. hard toys', 'Play with nesting cups and stacking rings'] },
+      { title: 'Showing Affection', desc: 'Hugs parents, shows empathy when others are sad.', min: 12, max: 18, category: 'Social & Emotional', activities: ['Model hugging and kissing', 'Comfort baby when they\'re upset to build empathy', 'Give stuffed animals "hugs" to model caring'] },
+      { title: 'Self-Feeding with Fingers', desc: 'Picks up small foods and feeds self independently.', min: 12, max: 18, category: 'Feeding & Nutrition', activities: ['Offer bite-sized soft fruits and cheese cubes', 'Let baby use a spoon with thick foods like yogurt', 'Provide finger foods at every meal'] },
+
+      // 18-24 months
+      { title: 'Running & Climbing', desc: 'Runs, climbs on low furniture, kicks a ball.', min: 18, max: 24, category: 'Gross Motor', activities: ['Play chase games in a safe open area', 'Set up a small climbing structure', 'Kick a soft ball back and forth'] },
+      { title: 'Using Utensils', desc: 'Holds a spoon and fork, turns book pages independently.', min: 18, max: 24, category: 'Fine Motor', activities: ['Offer a child-safe spoon for soft foods', 'Let baby turn board book pages', 'Play with play-dough for hand strengthening'] },
+      { title: 'Putting Two Words Together', desc: 'Says "more milk", "daddy go", and names familiar people.', min: 18, max: 24, category: 'Language & Communication', activities: ['Expand on what baby says ("More milk?" → "Yes, more milk!")', 'Name colors and objects during walks', 'Sing songs and pause for baby to fill in the word'] },
+      { title: 'Pretend Play', desc: 'Feeds a doll, talks on a toy phone, uses imagination.', min: 18, max: 24, category: 'Cognitive', activities: ['Provide toy kitchen items for pretend cooking', 'Give baby a toy phone to "talk" on', 'Play with dolls and stuffed animals'] },
+      { title: 'Playing Alongside Others', desc: 'Plays near other children, begins to share toys.', min: 18, max: 24, category: 'Social & Emotional', activities: ['Arrange playdates with one other child', 'Model sharing by saying "my turn, your turn"', 'Play group songs with actions'] },
+      { title: 'Chewing Different Textures', desc: 'Chews crunchy and soft foods, drinks from a cup independently.', min: 18, max: 24, category: 'Feeding & Nutrition', activities: ['Offer crunchy snacks like crackers and apple slices', 'Let baby drink from an open cup with supervision', 'Introduce new textures gradually'] },
+
+      // 24+ months
+      { title: 'Jumping & Running', desc: 'Jumps with both feet, runs easily, climbs confidently.', min: 24, max: 36, category: 'Gross Motor', activities: ['Practice jumping off low steps', 'Play tag and race games', 'Use a mini trampoline with supervision'] },
+      { title: 'Drawing & Buttoning', desc: 'Draws circles, begins to undo buttons and zippers.', min: 24, max: 36, category: 'Fine Motor', activities: ['Provide crayons and large paper for drawing', 'Practice undoing large buttons on clothes', 'String large beads onto a cord'] },
+      { title: 'Sentences & Questions', desc: 'Speaks in 3-4 word sentences, asks "why?" constantly.', min: 24, max: 36, category: 'Language & Communication', activities: ['Answer "why" questions patiently', 'Read longer stories and ask comprehension questions', 'Play "I Spy" to build vocabulary'] },
+      { title: 'Problem Solving', desc: 'Sorts shapes, solves simple puzzles, understands counting.', min: 24, max: 36, category: 'Cognitive', activities: ['Offer 4-6 piece puzzles', 'Count fingers, toes, and toys together', 'Sort laundry by color together'] },
+      { title: 'Playing with Other Children', desc: 'Takes turns, shows empathy, plays cooperatively.', min: 24, max: 36, category: 'Social & Emotional', activities: ['Arrange group playdates', 'Model taking turns with toys', 'Read books about feelings and emotions'] },
+      { title: 'Using Utensils Independently', desc: 'Uses spoon and fork, drinks from open cup, feeds self.', min: 24, max: 36, category: 'Feeding & Nutrition', activities: ['Let baby serve themselves small portions', 'Offer a variety of textures at meals', 'Cook together by stirring and pouring'] },
     ];
+
+    // Daily milestone activities by day of week
+    const dailyMilestoneActivities = {
+      0: { emoji: '🧸', label: 'Gross Motor Day', desc: 'Focus on big body movements' },
+      1: { emoji: '✋', label: 'Fine Motor Day', desc: 'Focus on hands and fingers' },
+      2: { emoji: '🧠', label: 'Cognitive Day', desc: 'Focus on thinking and problem solving' },
+      3: { emoji: '🗣️', label: 'Language Day', desc: 'Focus on talking and communication' },
+      4: { emoji: '❤️', label: 'Social & Emotional Day', desc: 'Focus on feelings and relationships' },
+      5: { emoji: '🍼', label: 'Feeding & Nutrition Day', desc: 'Focus on eating skills' },
+      6: { emoji: '👀', label: 'Sensory Day', desc: 'Focus on senses and exploration' },
+    };
 
     // === INIT ===
     setTimeout(() => {
@@ -997,36 +1055,50 @@
       const savedWake = localStorage.getItem('wakeTime') || '07:00';
       wakeInput.value = savedWake;
       const [wakeHour, wakeMin] = savedWake.split(':').map(Number);
+      const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const todayIdx = new Date().getDay();
+      const dayBtns = document.getElementById('daySelector');
+      if (dayBtns && !dayBtns.dataset.init) {
+        dayBtns.dataset.init = '1';
+        dayBtns.innerHTML = dayNames.map((d,i) => '<button onclick="selectPlannerDay(' + i + ')" data-day="' + i + '" style="padding:6px 10px;border-radius:8px;border:2px solid ' + (i === todayIdx ? '#818CF8' : '#E5E7EB') + ';background:' + (i === todayIdx ? '#818CF8' : '#fff') + ';color:' + (i === todayIdx ? '#fff' : '#636E72') + ';font-size:12px;font-weight:600;cursor:pointer">' + d + '</button>').join('');
+        window._plannerDay = todayIdx;
+      }
+
+      const dayIdx = window._plannerDay !== undefined ? window._plannerDay : todayIdx;
+      const dayActivities = getMilestoneActivities(months, dayIdx);
+      const dayLabel = dayNames[dayIdx] + (dayIdx === todayIdx ? ' (Today)' : '');
+      document.getElementById('plannerDayLabel').textContent = dayLabel;
+
       let items = [];
       if (months <= 3) {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & morning feed (breastmilk/formula 4-5 oz)', hours:0 },
-          { emoji:'🧸', time:formatTime(wakeHour,wakeMin+30), desc:'Tummy time: 3-5 min, high-contrast toys', hours:0.5 },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour,wakeMin+30), desc: dayActivities[0].text, hours:0.5, tag: dayActivities[0].category },
           { emoji:'😴', time:formatTime(wakeHour+1,wakeMin+30), desc:'Nap (60-90 min wake window)', hours:1.5 },
           { emoji:'🍼', time:formatTime(wakeHour+3,wakeMin+30), desc:'Feed after nap (4-5 oz)', hours:3.5 },
-          { emoji:'🧸', time:formatTime(wakeHour+5,wakeMin), desc:'Milestone: tracking objects, social smiling', hours:5 },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin), desc: dayActivities[1].text, hours:5, tag: dayActivities[1].category },
           { emoji:'🍼', time:formatTime(wakeHour+6,wakeMin+30), desc:'Afternoon feed', hours:6.5 },
           { emoji:'🌙', time:formatTime(wakeHour+9,wakeMin+30), desc:'Bedtime routine & final feed', hours:9.5 }
         ];
       } else if (months <= 6) {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & morning feed (5-7 oz)', hours:0 },
-          { emoji:'🧸', time:formatTime(wakeHour,wakeMin+30), desc:'Milestone: tummy time, rolling practice', hours:0.5 },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour,wakeMin+30), desc: dayActivities[0].text, hours:0.5, tag: dayActivities[0].category },
           { emoji:'🥣', time:formatTime(wakeHour+2,wakeMin+30), desc:'Solid food intro: puree tasting (1-2 tbsp)', hours:2.5 },
           { emoji:'😴', time:formatTime(wakeHour+3,wakeMin+30), desc:'Morning nap (1.5-2 hr wake window)', hours:3.5 },
           { emoji:'🍼', time:formatTime(wakeHour+5,wakeMin+30), desc:'Afternoon milk feed', hours:5.5 },
-          { emoji:'🧸', time:formatTime(wakeHour+6,wakeMin+30), desc:'Milestone: sitting practice, reaching toys', hours:6.5 },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+6,wakeMin+30), desc: dayActivities[1].text, hours:6.5, tag: dayActivities[1].category },
           { emoji:'🍼', time:formatTime(wakeHour+8,wakeMin+30), desc:'Evening feed', hours:8.5 },
           { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & final feed', hours:10.5 }
         ];
       } else if (months <= 12) {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast + milk feed', hours:0 },
-          { emoji:'🧸', time:formatTime(wakeHour,wakeMin+30), desc:'Milestone: sitting up, crawling practice', hours:0.5 },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour,wakeMin+30), desc: dayActivities[0].text, hours:0.5, tag: dayActivities[0].category },
           { emoji:'😴', time:formatTime(wakeHour+2,wakeMin+30), desc:'Morning nap window', hours:2.5 },
           { emoji:'🥑', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: soft foods + milk', hours:4.5 },
           { emoji:'🫐', time:formatTime(wakeHour+6,wakeMin), desc:'Snack: yogurt & fruit', hours:6 },
-          { emoji:'🧸', time:formatTime(wakeHour+7,wakeMin), desc:'Milestone: pulling to stand, first steps', hours:7 },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[1].text, hours:7, tag: dayActivities[1].category },
           { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin), desc:'Family dinner + milk', hours:9 },
           { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
         ];
@@ -1034,22 +1106,73 @@
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: egg, fruit & milk', hours:0 },
           { emoji:'🍏', time:formatTime(wakeHour+2,wakeMin+30), desc:'Morning snack', hours:2.5 },
-          { emoji:'🧸', time:formatTime(wakeHour+3,wakeMin+30), desc:'Milestone: stacking blocks, saying words', hours:3.5 },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+3,wakeMin+30), desc: dayActivities[0].text, hours:3.5, tag: dayActivities[0].category },
           { emoji:'🥪', time:formatTime(wakeHour+4,wakeMin), desc:'Lunch: sandwich & veggies', hours:4 },
           { emoji:'😴', time:formatTime(wakeHour+5,wakeMin), desc:'Quiet time / nap', hours:5 },
-          { emoji:'🥛', time:formatTime(wakeHour+7,wakeMin), desc:'Afternoon snack & milk', hours:7 },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[1].text, hours:7, tag: dayActivities[1].category },
           { emoji:'🍛', time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: family meal', hours:9 },
-          { emoji:'🧸', time:formatTime(wakeHour+10,wakeMin), desc:'Milestone: walking, waving bye-bye', hours:10 },
+          { emoji:'🧸', time:formatTime(wakeHour+10,wakeMin), desc:'Free play & bonding time', hours:10 },
           { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
         ];
       }
-      el.innerHTML = items.map(i =>
-        '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:#F8FAFC;border-radius:10px;margin-bottom:6px;font-size:13px;border-left:3px solid ' + (i.emoji === '🧸' ? '#818CF8' : i.emoji === '🌅' ? '#F59E0B' : i.emoji === '🌙' ? '#6366F1' : '#14B8A6') + '">' +
+      el.innerHTML = items.map(i => {
+        const borderColor = i.tag === 'Motor' ? '#14B8A6' : i.tag === 'Language' ? '#818CF8' : i.tag === 'Social' ? '#EC4899' : i.tag === 'Cognitive' ? '#F59E0B' : i.tag === 'Nutrition' ? '#22C55E' : i.emoji === '🌅' ? '#F59E0B' : i.emoji === '🌙' ? '#6366F1' : '#94A3B8';
+        const tagHtml = i.tag ? '<span style="font-size:9px;color:#fff;background:' + borderColor + ';padding:1px 5px;border-radius:4px;margin-left:6px">' + i.tag + '</span>' : '';
+        return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:#F8FAFC;border-radius:10px;margin-bottom:6px;font-size:13px;border-left:3px solid ' + borderColor + '">' +
         '<span style="font-size:18px">' + i.emoji + '</span>' +
-        '<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:bold;color:#1E1B4B">' + i.time + '</div>' +
+        '<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:bold;color:#1E1B4B">' + i.time + tagHtml + '</div>' +
         '<div style="font-size:10px;color:#636E72;background:#E5E7EB;padding:2px 6px;border-radius:8px">+' + i.hours + 'h</div></div>' +
-        '<div style="font-size:11px;color:#636E72;margin-top:2px">' + i.desc + '</div></div></div>'
-      ).join('');
+        '<div style="font-size:11px;color:#636E72;margin-top:2px">' + i.desc + '</div></div></div>';
+      }).join('');
+    }
+
+    function selectPlannerDay(dayIdx) {
+      window._plannerDay = dayIdx;
+      document.querySelectorAll('#daySelector button').forEach(b => {
+        const d = parseInt(b.dataset.day);
+        b.style.border = '2px solid ' + (d === dayIdx ? '#818CF8' : '#E5E7EB');
+        b.style.background = d === dayIdx ? '#818CF8' : '#fff';
+        b.style.color = d === dayIdx ? '#fff' : '#636E72';
+      });
+      updateDailyPlanner(getBabyAgeMonths());
+    }
+
+    function getMilestoneActivities(months, dayIdx) {
+      const activities = {
+        0: [ // Sunday - Motor Skills
+          { category:'Motor', emoji:'🧸', texts: months<=3 ? ['Tummy time: 3-5 min with high-contrast toys','Neck strengthening: hold baby upright during burping'] : months<=6 ? ['Rolling practice: place toy just out of reach','Reaching & grasping: offer easy-hold rattles'] : months<=12 ? ['Crawling obstacle course with soft cushions','Pulling to stand using sturdy furniture'] : ['Indoor obstacle climbing play','Dancing & balance games'] },
+          { category:'Motor', emoji:'🏃', texts: months<=3 ? ['Arm push-ups during tummy time','Head tracking with colorful objects'] : months<=6 ? ['Supported sitting practice','Foot kicking games with soft balls'] : months<=12 ? ['Cruising along furniture','First steps with push-toy'] : ['Jumping, hopping, running games','Pedal tricycle practice'] }
+        ],
+        1: [ // Monday - Language & Communication
+          { category:'Language', emoji:'🗣️', texts: months<=3 ? ['Talk during feedings: name body parts','Sing nursery rhymes with facial expressions'] : months<=6 ? ['Imitate baby sounds to encourage babbling','Read board books with bright pictures'] : months<=12 ? ['Point to objects and name them clearly','Practice simple sign language (more, milk)'] : ['Ask "Where is the dog?" picture questions','Read stories and ask about characters'] },
+          { category:'Language', emoji:'📖', texts: months<=3 ? ['Make animal sounds during play','Narrate daily routines out loud'] : months<=6 ? ['Play peek-a-boo with words','Read texture books together'] : months<=12 ? ['Say "bye-bye" and wave consistently','Name foods during mealtime'] : ['Tell simple stories together','Sing songs with hand motions'] }
+        ],
+        2: [ // Tuesday - Social & Emotional
+          { category:'Social', emoji:'💕', texts: months<=3 ? ['Make eye contact and smile warmly','Respond to coos with gentle conversation'] : months<=6 ? ['Play social games: peek-a-boo','Clap hands and cheer for baby'] : months<=12 ? ['Practice waving hello and goodbye','Encourage sharing toys with gentle guidance'] : ['Role-play caring for dolls/stuffed animals','Play turn-taking games'] },
+          { category:'Social', emoji:'🤗', texts: months<=3 ? ['Cuddle and sing softly together','Let baby see your smiling face often'] : months<=6 ? ['Play with other babies in safe setting','Name emotions: "Are you happy?"'] : months<=12 ? ['Offer comfort when baby is upset','Celebrate achievements with clapping'] : ['Practice patience games','Talk about feelings during play'] }
+        ],
+        3: [ // Wednesday - Cognitive
+          { category:'Cognitive', emoji:'🧠', texts: months<=3 ? ['High-contrast card viewing (8-12 inches)','Shake rattle to teach cause & effect'] : months<=6 ? ['Peek-a-boo to teach object permanence','Offer safe mirrors for self-recognition'] : months<=12 ? ['Stack and knock down blocks','Shape sorter toys exploration'] : ['Simple puzzles with large pieces','Sorting games by color or shape'] },
+          { category:'Cognitive', emoji:'🔍', texts: months<=3 ? ['Track moving objects with eyes','Water play with cups in bath'] : months<=6 ? ['Drop and retrieve games','Explore different textures safely'] : months<=12 ? ['Hide toys under blankets to find','Simple cause-and-effect toys'] : ['Counting during daily activities','Nature walks: find leaves, rocks'] }
+        ],
+        4: [ // Thursday - Nutrition
+          { category:'Nutrition', emoji:'🥑', texts: months<=3 ? ['Watch for hunger cues: rooting, sucking','Practice paced bottle feeding'] : months<=6 ? ['Introduce single-veggie purees','Let baby explore food textures'] : months<=12 ? ['Offer soft finger foods: banana, avocado','Practice self-feeding with spoon'] : ['Involve in meal prep (washing veggies)','Talk about food colors and tastes'] },
+          { category:'Nutrition', emoji:'🥦', texts: months<=3 ? ['Burp after every 2-3 oz','Space feeds 2.5-3 hours apart'] : months<=6 ? ['Try new puree flavors each day','Offer water in sippy cup'] : months<=12 ? ['Family meals: eat same foods together','Offer 3 meals + 2 snacks daily'] : ['Help set the table','Try one new food each week'] }
+        ],
+        5: [ // Friday - Motor Skills
+          { category:'Motor', emoji:'💪', texts: months<=3 ? ['Gentle leg cycling exercises','Practice supported head lifting'] : months<=6 ? ['Baby-safe mirror play during tummy time','Offer teething toys to chew'] : months<=12 ? ['Practice standing without support','Kick soft balls across the room'] : ['Ball throwing and catching practice','Drawing with chunky crayons'] },
+          { category:'Motor', emoji:'🤸', texts: months<=3 ? ['Bicycle legs during diaper changes','Hold baby upright to strengthen core'] : months<=6 ? ['Reaching across midline for toys','Supported bouncing on knees'] : months<=12 ? ['Climbing soft play structures','Walking while carrying soft toys'] : ['Dancing to music together','Jumping on soft surfaces'] }
+        ],
+        6: [ // Saturday - Mixed Focus
+          { category:'Cognitive', emoji:'🎨', texts: months<=3 ? ['Finger painting with edible paints','Listen to different music genres'] : months<=6 ? ['Sensory bags with water & glitter','Bang pots and pans for sounds'] : months<=12 ? ['Simple art: crayons on paper','Water table play with cups'] : ['Arts & crafts projects','Building with large blocks'] },
+          { category:'Social', emoji:'👨‍👩‍👧', texts: months<=3 ? ['Family cuddle time on the floor','Video call with grandparents'] : months<=6 ? ['Playgroup or park visit','Take photos together'] : months<=12 ? ['Playdate with age-matched friend','Help with simple household tasks'] : ['Family game night','Cook a simple recipe together'] }
+        ]
+      };
+      const day = activities[dayIdx] || activities[0];
+      return day.map(cat => {
+        const idx = Math.floor(Math.random() * cat.texts.length);
+        return { category: cat.category, emoji: cat.emoji, text: cat.texts[idx] };
+      });
     }
 
     function updatePlannerWakeTime() {
@@ -1223,20 +1346,56 @@
     }
 
     // === MILESTONES ===
+    // Track completed activities
+    let completedActivities = JSON.parse(localStorage.getItem('completedActivities') || '{}');
+
     function updateMilestones() {
       const age = getAgeInMonths();
       document.getElementById('babyAge').textContent = age + ' months';
-      const relevant = milestones.filter(m => m.min <= age + 6 && m.max >= age - 2);
-      document.getElementById('milestoneList').innerHTML = relevant.length > 0 ? relevant.map(m => {
+      const dayOfWeek = new Date().getDay();
+      const todayTheme = dailyMilestoneActivities[dayOfWeek];
+
+      const relevant = milestones.filter(m => m.min <= age + 3 && m.max >= age - 1);
+      const todayMilestones = relevant.filter(m => {
+        const cat = m.category.toLowerCase();
+        if (dayOfWeek === 0 && cat.includes('gross motor')) return true;
+        if (dayOfWeek === 1 && cat.includes('fine motor')) return true;
+        if (dayOfWeek === 2 && cat.includes('cognitive')) return true;
+        if (dayOfWeek === 3 && cat.includes('language')) return true;
+        if (dayOfWeek === 4 && cat.includes('social') || cat.includes('emotional')) return true;
+        if (dayOfWeek === 5 && cat.includes('feeding') || cat.includes('nutrition')) return true;
+        if (dayOfWeek === 6 && cat.includes('sensory')) return true;
+        return false;
+      });
+      const showMilestones = todayMilestones.length > 0 ? todayMilestones : relevant;
+
+      let html = '<div style="padding:10px;border-radius:12px;background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(139,92,246,0.1));margin-bottom:12px;border:1px solid rgba(99,102,241,0.2)">' +
+        '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:20px">' + todayTheme.emoji + '</span><div><div style="font-weight:bold;font-size:13px;color:#1E1B4B">' + todayTheme.label + '</div><div style="font-size:11px;color:#636E72">' + todayTheme.desc + '</div></div></div></div>';
+
+      html += showMilestones.map(m => {
         const total = m.activities.length;
-        const done = m.activities.filter(a => a.completed).length;
+        const key = m.title.replace(/\s/g, '_');
+        const done = m.activities.filter((a, i) => completedActivities[key + '_' + i]).length;
         const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-        return '<div class="milestone-card"><div class="milestone-header"><div class="milestone-icon">⭐</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div class="milestone-title">' + m.title + '</div><span style="font-size:11px;font-weight:bold;padding:2px 8px;border-radius:12px;background:#EEF2FF;color:#4338CA">' + m.min + '-' + m.max + 'm</span></div>' + (m.category ? '<div style="font-size:10px;color:#636E72;margin-top:2px">' + m.category + '</div>' : '') + '</div></div><div class="milestone-desc">' + m.desc + '</div><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><div style="flex:1;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden"><div style="height:100%;background:#14B8A6;width:' + pct + '%;transition:width 0.5s"></div></div><span style="font-size:11px;font-weight:bold;color:#636E72">' + pct + '%</span></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid #E5E7EB"><div style="font-size:10px;font-weight:bold;color:#9CA3AF;text-transform:uppercase;margin-bottom:6px">Activities</div>' + m.activities.map((a,i) => '<div onclick="toggleMilestoneActivity(' + milestones.indexOf(m) + ',' + i + ')" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px;font-size:12px;cursor:pointer;background:' + (a.completed ? '#F0FDF4' : '#F8FAFC') + ';text-decoration:' + (a.completed ? 'line-through' : 'none') + ';opacity:' + (a.completed ? '0.7' : '1') + '"><span style="font-size:14px">' + (a.completed ? '✅' : '⬜') + '</span><span>' + a.text + '</span></div>').join('') + '</div></div>';
-      }).join('') : '<div class="empty"><p>No upcoming milestones</p></div>';
+        const catColors = {
+          'Gross Motor': '#EEF2FF,#4338CA', 'Fine Motor': '#FDF2F8,#BE185D', 'Cognitive': '#EFF6FF,#1E40AF',
+          'Language & Communication': '#F0FDF4,#166534', 'Social & Emotional': '#FEF3C7,#92400E',
+          'Feeding & Nutrition': '#FFF7ED,#C2410C', 'Sensory': '#F5F3FF,#7C3AED'
+        };
+        const [catBg, catFg] = (catColors[m.category] || '#EEF2FF,#4338CA').split(',');
+        return '<div class="milestone-card"><div class="milestone-header"><div class="milestone-icon">⭐</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div class="milestone-title">' + m.title + '</div><span style="font-size:11px;font-weight:bold;padding:2px 8px;border-radius:12px;background:#EEF2FF;color:#4338CA">' + m.min + '-' + m.max + 'm</span></div>' + '<div style="font-size:10px;color:#636E72;margin-top:2px"><span style="background:' + catBg + ';color:' + catFg + ';padding:1px 6px;border-radius:6px;font-weight:600">' + m.category + '</span></div>' + '</div></div><div class="milestone-desc">' + m.desc + '</div><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><div style="flex:1;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden"><div style="height:100%;background:#14B8A6;width:' + pct + '%;transition:width 0.5s"></div></div><span style="font-size:11px;font-weight:bold;color:#636E72">' + done + '/' + total + '</span></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid #E5E7EB"><div style="font-size:10px;font-weight:bold;color:#9CA3AF;text-transform:uppercase;margin-bottom:6px">Today\'s Activities</div>' + m.activities.map((a, i) => {
+          const actKey = key + '_' + i;
+          const isDone = !!completedActivities[actKey];
+          return '<div onclick="toggleActivity(\'' + actKey + '\')" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px;font-size:12px;cursor:pointer;background:' + (isDone ? '#F0FDF4' : '#F8FAFC') + ';text-decoration:' + (isDone ? 'line-through' : 'none') + ';opacity:' + (isDone ? '0.7' : '1') + '"><span style="font-size:14px">' + (isDone ? '✅' : '⬜') + '</span><span>' + a + '</span></div>';
+        }).join('') + '</div></div>';
+      }).join('');
+
+      document.getElementById('milestoneList').innerHTML = html || '<div class="empty"><p>No upcoming milestones</p></div>';
     }
 
-    function toggleMilestoneActivity(mIdx, aIdx) {
-      milestones[mIdx].activities[aIdx].completed = !milestones[mIdx].activities[aIdx].completed;
+    function toggleActivity(key) {
+      completedActivities[key] = !completedActivities[key];
+      localStorage.setItem('completedActivities', JSON.stringify(completedActivities));
       updateMilestones();
     }
 
