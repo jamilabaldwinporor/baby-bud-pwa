@@ -1230,7 +1230,7 @@
         ];
       }
       el.innerHTML = items.map(i => {
-        const borderColor = i.tag === 'Motor' ? '#14B8A6' : i.tag === 'Language' ? '#818CF8' : i.tag === 'Social' ? '#EC4899' : i.tag === 'Cognitive' ? '#F59E0B' : i.tag === 'Nutrition' ? '#22C55E' : i.emoji === '🌅' ? '#F59E0B' : i.emoji === '🌙' ? '#6366F1' : '#94A3B8';
+        const borderColor = i.tag === 'Motor' ? '#14B8A6' : i.tag === 'Language' ? '#818CF8' : i.tag === 'Social' ? '#EC4899' : i.tag === 'Cognitive' ? '#F59E0B' : i.tag === 'Nutrition' ? '#22C55E' : i.tag === 'Sensory' ? '#8B5CF6' : i.emoji === '🌅' ? '#F59E0B' : i.emoji === '🌙' ? '#6366F1' : '#94A3B8';
         const tagHtml = i.tag ? '<span style="font-size:9px;color:#fff;background:' + borderColor + ';padding:1px 5px;border-radius:4px;margin-left:6px">' + i.tag + '</span>' : '';
         return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:#F8FAFC;border-radius:10px;margin-bottom:6px;font-size:13px;border-left:3px solid ' + borderColor + '">' +
         '<span style="font-size:18px">' + i.emoji + '</span>' +
@@ -1273,10 +1273,10 @@
           { category:'Cognitive', emoji:'🔍', texts: months<=3 ? ['Track moving objects with eyes','Water play with cups in bath'] : months<=6 ? ['Drop and retrieve games','Explore different textures safely'] : months<=12 ? ['Hide toys under blankets to find','Simple cause-and-effect toys'] : ['Counting during daily activities','Nature walks: find leaves, rocks'] },
           { category:'Cognitive', emoji:'🧩', texts: months<=3 ? ['Track objects side to side','Explore soft textures'] : months<=6 ? ['Stack rings on post','Explore cause & effect toys'] : months<=12 ? ['Simple matching games','Nesting cups play'] : ['Memory card matching','Science experiments (colors, magnets)'] }
         ],
-        4: [ // Thursday - Nutrition
-          { category:'Nutrition', emoji:'🥑', texts: months<=3 ? ['Watch for hunger cues: rooting, sucking','Practice paced bottle feeding'] : months<=6 ? ['Introduce single-veggie purees','Let baby explore food textures'] : months<=12 ? ['Offer soft finger foods: banana, avocado','Practice self-feeding with spoon'] : ['Involve in meal prep (washing veggies)','Talk about food colors and tastes'] },
-          { category:'Nutrition', emoji:'🥦', texts: months<=3 ? ['Burp after every 2-3 oz','Space feeds 2.5-3 hours apart'] : months<=6 ? ['Try new puree flavors each day','Offer water in sippy cup'] : months<=12 ? ['Family meals: eat same foods together','Offer 3 meals + 2 snacks daily'] : ['Help set the table','Try one new food each week'] },
-          { category:'Nutrition', emoji:'🍽️', texts: months<=3 ? ['Observe feeding cues','Establish feeding rhythm'] : months<=6 ? ['Taste exploration time','Safe feeding position practice'] : months<=12 ? ['Practice using sippy cup','Self-feeding practice'] : ['Cook simple recipes together','Learn about food groups'] }
+        4: [ // Thursday - Sensory & Exploration
+          { category:'Sensory', emoji:'🎨', texts: months<=3 ? ['Explore different textures: soft blanket, smooth toy','Listen to gentle music and nature sounds'] : months<=6 ? ['Sensory bags with water & glitter','Feel different fabrics during play'] : months<=12 ? ['Water table play with cups and scoops','Sand box exploration with shovels'] : ['Nature walk: collect leaves, rocks, flowers','Finger painting with edible paints'] },
+          { category:'Sensory', emoji:'🎵', texts: months<=3 ? ['Shake rattles and listen to sounds','Watch colorful spinning toys'] : months<=6 ? ['Bang pots and pans for sounds','Play with crinkle paper'] : months<=12 ? ['Dance to different music genres','Play with musical instruments'] : ['Make homemade instruments (rice shakers)','Sound matching games'] },
+          { category:'Sensory', emoji:'🫧', texts: months<=3 ? ['Watch bubbles float during tummy time','Feel warm water during bath time'] : months<=6 ? ['Play with safe mirrors','Explore safe household objects'] : months<=12 ? ['Bubble play and popping','Sensory bin with rice and toys'] : ['Gardening: dig in soil, water plants','Cooking: mixing, pouring, measuring'] }
         ],
         5: [ // Friday - Motor Skills
           { category:'Motor', emoji:'💪', texts: months<=3 ? ['Gentle leg cycling exercises','Practice supported head lifting'] : months<=6 ? ['Baby-safe mirror play during tummy time','Offer teething toys to chew'] : months<=12 ? ['Practice standing without support','Kick soft balls across the room'] : ['Ball throwing and catching practice','Drawing with chunky crayons'] },
