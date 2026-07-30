@@ -1658,8 +1658,12 @@
       reader.onload = function(e) {
         const dataUrl = e.target.result;
         baby.photo = dataUrl;
+        const idx = children.findIndex(c => c.id === baby.id);
+        if (idx !== -1) children[idx].photo = dataUrl;
+        localStorage.setItem('baby', JSON.stringify(baby));
         localStorage.setItem('children', JSON.stringify(children));
         document.getElementById('profileAvatar').innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
+        updateProfile();
         updateChildrenList();
       };
       reader.readAsDataURL(file);
