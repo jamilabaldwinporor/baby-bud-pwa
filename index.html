@@ -1194,10 +1194,13 @@
       if (months <= 1) {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (2-3 oz)', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour+0.5,wakeMin), desc:'Tummy time: 1-2 min (chest-to-chest or on blanket)', hours:0.5, tag:'Tummy Time' },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
           { emoji:'🍼', time:formatTime(wakeHour+2,wakeMin), desc:'Feed (2-3 oz)', hours:2 },
+          { emoji:'🧸', time:formatTime(wakeHour+2.5,wakeMin), desc:'Tummy time: 2-3 min', hours:2.5, tag:'Tummy Time' },
           { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Nap', hours:3 },
           { emoji:'🍼', time:formatTime(wakeHour+4,wakeMin), desc:'Feed (2-3 oz)', hours:4 },
+          { emoji:'🧸', time:formatTime(wakeHour+4.5,wakeMin), desc:'Tummy time: 3-5 min', hours:4.5, tag:'Tummy Time' },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin), desc: dayActivities[1].text, hours:5, tag: dayActivities[1].category },
           { emoji:'🍼', time:formatTime(wakeHour+6,wakeMin), desc:'Feed (2-3 oz)', hours:6 },
           { emoji:'😴', time:formatTime(wakeHour+7,wakeMin), desc:'Nap', hours:7 },
@@ -1205,26 +1208,51 @@
           { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+9,wakeMin), desc: dayActivities[2].text, hours:9, tag: dayActivities[2].category },
           { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & feed', hours:10.5 }
         ];
-      } else if (months <= 4) {
+      } else if (months <= 2) {
+        items = [
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (3-4 oz)', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour+0.5,wakeMin), desc:'Tummy time: 5-10 min (use toys to encourage)', hours:0.5, tag:'Tummy Time' },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
+          { emoji:'🍼', time:formatTime(wakeHour+2,wakeMin), desc:'Feed (3-4 oz)', hours:2 },
+          { emoji:'🧸', time:formatTime(wakeHour+2.5,wakeMin), desc:'Tummy time: 5-10 min', hours:2.5, tag:'Tummy Time' },
+          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Nap', hours:3 },
+          { emoji:'🍼', time:formatTime(wakeHour+4,wakeMin), desc:'Feed (3-4 oz)', hours:4 },
+          { emoji:'🧸', time:formatTime(wakeHour+4.5,wakeMin), desc:'Tummy time: 5-10 min', hours:4.5, tag:'Tummy Time' },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin), desc: dayActivities[1].text, hours:5, tag: dayActivities[1].category },
+          { emoji:'🍼', time:formatTime(wakeHour+6,wakeMin), desc:'Feed (3-4 oz)', hours:6 },
+          { emoji:'🧸', time:formatTime(wakeHour+6.5,wakeMin), desc:'Tummy time: 5-10 min', hours:6.5, tag:'Tummy Time' },
+          { emoji:'😴', time:formatTime(wakeHour+7,wakeMin), desc:'Nap', hours:7 },
+          { emoji:'🍼', time:formatTime(wakeHour+8,wakeMin), desc:'Feed (3-4 oz)', hours:8 },
+          { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & feed', hours:10.5 }
+        ];
+      } else if (months <= 3) {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (4-5 oz)', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour+0.5,wakeMin), desc:'Tummy time: 10-15 min (hold toys ahead)', hours:0.5, tag:'Tummy Time' },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
-          { emoji:'😴', time:formatTime(wakeHour+2,wakeMin), desc:'Nap', hours:2 },
-          { emoji:'🍼', time:formatTime(wakeHour+3,wakeMin+30), desc:'Feed (4-5 oz)', hours:3.5 },
-          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+4,wakeMin+30), desc: dayActivities[1].text, hours:4.5, tag: dayActivities[1].category },
-          { emoji:'😴', time:formatTime(wakeHour+6,wakeMin), desc:'Afternoon nap', hours:6 },
-          { emoji:'🍼', time:formatTime(wakeHour+7,wakeMin+30), desc:'Feed (4-5 oz)', hours:7.5 },
-          { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+8,wakeMin+30), desc: dayActivities[2].text, hours:8.5, tag: dayActivities[2].category },
-          { emoji:'🌙', time:formatTime(wakeHour+9,wakeMin+30), desc:'Bedtime routine & final feed (4-5 oz)', hours:9.5 }
+          { emoji:'🍼', time:formatTime(wakeHour+2,wakeMin), desc:'Feed (4-5 oz)', hours:2 },
+          { emoji:'🧸', time:formatTime(wakeHour+2.5,wakeMin), desc:'Tummy time: 10-15 min', hours:2.5, tag:'Tummy Time' },
+          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Nap', hours:3 },
+          { emoji:'🍼', time:formatTime(wakeHour+4,wakeMin), desc:'Feed (4-5 oz)', hours:4 },
+          { emoji:'🧸', time:formatTime(wakeHour+4.5,wakeMin), desc:'Tummy time: 10-15 min (aim 60 min total/day)', hours:4.5, tag:'Tummy Time' },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin), desc: dayActivities[1].text, hours:5, tag: dayActivities[1].category },
+          { emoji:'🍼', time:formatTime(wakeHour+6,wakeMin), desc:'Feed (4-5 oz)', hours:6 },
+          { emoji:'🧸', time:formatTime(wakeHour+6.5,wakeMin), desc:'Tummy time: 10-15 min', hours:6.5, tag:'Tummy Time' },
+          { emoji:'😴', time:formatTime(wakeHour+7,wakeMin), desc:'Nap', hours:7 },
+          { emoji:'🍼', time:formatTime(wakeHour+8,wakeMin), desc:'Feed (4-5 oz)', hours:8 },
+          { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & final feed', hours:10.5 }
         ];
       } else if (months <= 6) {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (4-6 oz)', hours:0 },
+          { emoji:'🧸', time:formatTime(wakeHour+0.5,wakeMin), desc:'Tummy time: 15-20 min (encourage rolling)', hours:0.5, tag:'Tummy Time' },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
           { emoji:'🍼', time:formatTime(wakeHour+2,wakeMin), desc:'Feed (4-6 oz)', hours:2 },
+          { emoji:'🧸', time:formatTime(wakeHour+2.5,wakeMin), desc:'Tummy time: 15-20 min (push-up practice)', hours:2.5, tag:'Tummy Time' },
           { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Morning nap', hours:3 },
           { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food + ' + milk', hours:4.5, tag:'Nutrition' },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin+30), desc: dayActivities[1].text, hours:5.5, tag: dayActivities[1].category },
+          { emoji:'🧸', time:formatTime(wakeHour+6,wakeMin+30), desc:'Floor play: 15-20 min (reaching for toys)', hours:6.5, tag:'Tummy Time' },
           { emoji:'🍼', time:formatTime(wakeHour+7,wakeMin), desc:'Feed (4-6 oz)', hours:7 },
           { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+8,wakeMin), desc: dayActivities[2].text, hours:8, tag: dayActivities[2].category },
           { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & final feed (4-6 oz)', hours:10.5 }
@@ -1259,7 +1287,7 @@
         ];
       }
       el.innerHTML = items.map(i => {
-        const borderColor = i.tag === 'Motor' ? '#14B8A6' : i.tag === 'Language' ? '#818CF8' : i.tag === 'Social' ? '#EC4899' : i.tag === 'Cognitive' ? '#F59E0B' : i.tag === 'Nutrition' ? '#22C55E' : i.tag === 'Sensory' ? '#8B5CF6' : i.emoji === '🌅' ? '#F59E0B' : i.emoji === '🌙' ? '#6366F1' : '#94A3B8';
+        const borderColor = i.tag === 'Motor' ? '#14B8A6' : i.tag === 'Language' ? '#818CF8' : i.tag === 'Social' ? '#EC4899' : i.tag === 'Cognitive' ? '#F59E0B' : i.tag === 'Nutrition' ? '#22C55E' : i.tag === 'Sensory' ? '#8B5CF6' : i.tag === 'Tummy Time' ? '#F97316' : i.emoji === '🌅' ? '#F59E0B' : i.emoji === '🌙' ? '#6366F1' : '#94A3B8';
         const tagHtml = i.tag ? '<span style="font-size:9px;color:#fff;background:' + borderColor + ';padding:1px 5px;border-radius:4px;margin-left:6px">' + i.tag + '</span>' : '';
         return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px;background:#F8FAFC;border-radius:10px;margin-bottom:6px;font-size:13px;border-left:3px solid ' + borderColor + '">' +
         '<span style="font-size:18px">' + i.emoji + '</span>' +
@@ -1571,45 +1599,49 @@
     function updateMilestones() {
       const age = getAgeInMonths();
       document.getElementById('babyAge').textContent = age + ' months';
-      const dayOfWeek = new Date().getDay();
-      const todayTheme = dailyMilestoneActivities[dayOfWeek];
+
+      const categoryColors = {
+        'Gross Motor': { bg:'#EEF2FF', fg:'#4338CA', emoji:'🏃' },
+        'Fine Motor': { bg:'#FDF2F8', fg:'#BE185D', emoji:'✋' },
+        'Cognitive': { bg:'#EFF6FF', fg:'#1E40AF', emoji:'🧠' },
+        'Language & Communication': { bg:'#F0FDF4', fg:'#166534', emoji:'🗣️' },
+        'Social & Emotional': { bg:'#FEF3C7', fg:'#92400E', emoji:'❤️' },
+        'Feeding & Nutrition': { bg:'#FFF7ED', fg:'#C2410C', emoji:'🍼' },
+        'Sensory': { bg:'#F5F3FF', fg:'#7C3AED', emoji:'👀' }
+      };
 
       const relevant = milestones.filter(m => m.min <= age + 3 && m.max >= age - 1);
-      const todayMilestones = relevant.filter(m => {
-        const cat = m.category.toLowerCase();
-        if (dayOfWeek === 0 && cat.includes('gross motor')) return true;
-        if (dayOfWeek === 1 && cat.includes('fine motor')) return true;
-        if (dayOfWeek === 2 && cat.includes('cognitive')) return true;
-        if (dayOfWeek === 3 && cat.includes('language')) return true;
-        if (dayOfWeek === 4 && cat.includes('social') || cat.includes('emotional')) return true;
-        if (dayOfWeek === 5 && cat.includes('feeding') || cat.includes('nutrition')) return true;
-        if (dayOfWeek === 6 && cat.includes('sensory')) return true;
-        return false;
+
+      const grouped = {};
+      relevant.forEach(m => {
+        if (!grouped[m.category]) grouped[m.category] = [];
+        m.activities.forEach(a => {
+          if (!grouped[m.category].includes(a)) grouped[m.category].push(a);
+        });
       });
-      const showMilestones = todayMilestones.length > 0 ? todayMilestones : relevant;
 
       let html = '<div style="padding:10px;border-radius:12px;background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(139,92,246,0.1));margin-bottom:12px;border:1px solid rgba(99,102,241,0.2)">' +
-        '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:20px">' + todayTheme.emoji + '</span><div><div style="font-weight:bold;font-size:13px;color:#1E1B4B">' + todayTheme.label + '</div><div style="font-size:11px;color:#636E72">' + todayTheme.desc + '</div></div></div></div>';
+        '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:20px">⭐</span><div><div style="font-weight:bold;font-size:13px;color:#1E1B4B">Milestones for ' + age + ' months</div><div style="font-size:11px;color:#636E72">All activities across 5 categories</div></div></div></div>';
 
-      html += showMilestones.map(m => {
-        const total = m.activities.length;
-        const key = m.title.replace(/\s/g, '_');
-        const done = m.activities.filter((a, i) => completedActivities[key + '_' + i]).length;
+      Object.keys(categoryColors).forEach(cat => {
+        const activities = grouped[cat];
+        if (!activities || activities.length === 0) return;
+        const colors = categoryColors[cat];
+        const total = activities.length;
+        const done = activities.filter((a, i) => completedActivities[cat.replace(/\s/g,'_') + '_' + i]).length;
         const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-        const catColors = {
-          'Gross Motor': '#EEF2FF,#4338CA', 'Fine Motor': '#FDF2F8,#BE185D', 'Cognitive': '#EFF6FF,#1E40AF',
-          'Language & Communication': '#F0FDF4,#166534', 'Social & Emotional': '#FEF3C7,#92400E',
-          'Feeding & Nutrition': '#FFF7ED,#C2410C', 'Sensory': '#F5F3FF,#7C3AED'
-        };
-        const [catBg, catFg] = (catColors[m.category] || '#EEF2FF,#4338CA').split(',');
-        return '<div class="milestone-card"><div class="milestone-header"><div class="milestone-icon">⭐</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div class="milestone-title">' + m.title + '</div><span style="font-size:11px;font-weight:bold;padding:2px 8px;border-radius:12px;background:#EEF2FF;color:#4338CA">' + m.min + '-' + m.max + 'm</span></div>' + '<div style="font-size:10px;color:#636E72;margin-top:2px"><span style="background:' + catBg + ';color:' + catFg + ';padding:1px 6px;border-radius:6px;font-weight:600">' + m.category + '</span></div>' + '</div></div><div class="milestone-desc">' + m.desc + '</div><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><div style="flex:1;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden"><div style="height:100%;background:#14B8A6;width:' + pct + '%;transition:width 0.5s"></div></div><span style="font-size:11px;font-weight:bold;color:#636E72">' + done + '/' + total + '</span></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid #E5E7EB"><div style="font-size:10px;font-weight:bold;color:#9CA3AF;text-transform:uppercase;margin-bottom:6px">Today\'s Activities</div>' + m.activities.map((a, i) => {
-          const actKey = key + '_' + i;
+
+        html += '<div class="milestone-card"><div class="milestone-header"><div class="milestone-icon">' + colors.emoji + '</div><div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><div class="milestone-title">' + cat + '</div><span style="font-size:11px;font-weight:bold;padding:2px 8px;border-radius:12px;background:' + colors.bg + ';color:' + colors.fg + '">' + done + '/' + total + '</span></div>' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-top:4px"><div style="flex:1;height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden"><div style="height:100%;background:#14B8A6;width:' + pct + '%;transition:width 0.5s"></div></div><span style="font-size:10px;color:#636E72">' + pct + '%</span></div></div></div>' +
+        '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #E5E7EB">' +
+        activities.map((a, i) => {
+          const actKey = cat.replace(/\s/g,'_') + '_' + i;
           const isDone = !!completedActivities[actKey];
           return '<div onclick="toggleActivity(\'' + actKey + '\')" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px;font-size:12px;cursor:pointer;background:' + (isDone ? '#F0FDF4' : '#F8FAFC') + ';text-decoration:' + (isDone ? 'line-through' : 'none') + ';opacity:' + (isDone ? '0.7' : '1') + '"><span style="font-size:14px">' + (isDone ? '✅' : '⬜') + '</span><span>' + a + '</span></div>';
         }).join('') + '</div></div>';
-      }).join('');
+      });
 
-      document.getElementById('milestoneList').innerHTML = html || '<div class="empty"><p>No upcoming milestones</p></div>';
+      document.getElementById('milestoneList').innerHTML = html;
     }
 
     function toggleActivity(key) {
