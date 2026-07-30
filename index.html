@@ -322,6 +322,7 @@
   <div id="feedingLog" class="screen">
     <button class="back-btn" onclick="navigate('home')">← Back</button>
     <div class="header"><h2>Log Feeding</h2></div>
+    <div id="feedingSuggestion" style="background:#F0FDF4;border-radius:12px;padding:12px;margin-bottom:12px;font-size:12px;color:#166534;text-align:center"></div>
     <div class="type-selector">
       <button class="type-btn active" onclick="selectFeedingType(this,'bottle')"><span class="icon">🍼</span>Bottle</button>
       <button class="type-btn" onclick="selectFeedingType(this,'breast')"><span class="icon">🤱</span>Breast</button>
@@ -739,6 +740,7 @@
     <!-- Feeding Reminder -->
     <div class="form-card">
       <h3 style="margin-bottom:12px">🍼 Feeding Reminder</h3>
+      <div id="feedingAgeSuggestion" style="background:#F0FDF4;border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px;color:#166534"></div>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
         <label style="position:relative;display:inline-block;width:52px;height:28px;cursor:pointer">
           <input type="checkbox" id="feedingReminderOn" style="opacity:0;width:0;height:0" onchange="toggleFeedingReminder()">
@@ -750,13 +752,7 @@
       <div id="feedingReminderOptions" style="display:none">
         <div class="form-group">
           <label>Remind every</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn-hour" onclick="setFeedInterval(2,this)">2 hrs</button>
-            <button class="btn-hour" onclick="setFeedInterval(3,this)">3 hrs</button>
-            <button class="btn-hour btn-active" onclick="setFeedInterval(4,this)">4 hrs</button>
-            <button class="btn-hour" onclick="setFeedInterval(5,this)">5 hrs</button>
-            <button class="btn-hour" onclick="setFeedInterval(6,this)">6 hrs</button>
-          </div>
+          <div id="feedIntervalBtns" style="display:flex;gap:8px;flex-wrap:wrap"></div>
         </div>
         <div class="form-group">
           <label>Or set specific times</label>
@@ -1024,7 +1020,22 @@
       if (screen === 'profile') updateProfile();
       if (screen === 'askAnything') updateAskAnything();
       if (screen === 'savedAnswers') updateSavedAnswers();
+      if (screen === 'feedingLog') updateFeedingSuggestion();
       if (screen === 'askAnything') document.getElementById('chatInput').focus();
+    }
+
+    function updateFeedingSuggestion() {
+      const months = getBabyAgeMonths();
+      const weeks = getBabyAgeWeeks();
+      let text = '';
+      if (weeks < 1) text = '🍼 Newborn: 1–2 oz per feeding, every 2–3 hrs (8–12x/day)';
+      else if (months < 1) text = '🍼 1–4 weeks: 2–3 oz per feeding, every 2–3 hrs (16–24 oz/day)';
+      else if (months < 2) text = '🍼 1–2 months: 3–4 oz per feeding, every 3–4 hrs (18–32 oz/day)';
+      else if (months < 4) text = '🍼 2–4 months: 4–5 oz per feeding, every 3–4 hrs (24–32 oz/day)';
+      else if (months < 6) text = '🍼 4–6 months: 4–6 oz milk + 1–2 tbsp solids, every 3–4 hrs';
+      else if (months < 12) text = '🍼 6–12 months: 6–8 oz milk (4–5x/day) + 3 meals of solids';
+      else text = '🥛 12+ months: 6–8 oz whole milk (4–5x/day), 16–24 oz total';
+      document.getElementById('feedingSuggestion').textContent = text;
     }
 
     // === ONBOARDING ===
@@ -1180,52 +1191,69 @@
       document.getElementById('plannerDayLabel').textContent = dayLabel;
 
       let items = [];
-      if (months <= 3) {
+      if (months <= 1) {
+        items = [
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (2-3 oz)', hours:0 },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
+          { emoji:'🍼', time:formatTime(wakeHour+2,wakeMin), desc:'Feed (2-3 oz)', hours:2 },
+          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Nap', hours:3 },
+          { emoji:'🍼', time:formatTime(wakeHour+4,wakeMin), desc:'Feed (2-3 oz)', hours:4 },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin), desc: dayActivities[1].text, hours:5, tag: dayActivities[1].category },
+          { emoji:'🍼', time:formatTime(wakeHour+6,wakeMin), desc:'Feed (2-3 oz)', hours:6 },
+          { emoji:'😴', time:formatTime(wakeHour+7,wakeMin), desc:'Nap', hours:7 },
+          { emoji:'🍼', time:formatTime(wakeHour+8,wakeMin), desc:'Feed (2-3 oz)', hours:8 },
+          { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+9,wakeMin), desc: dayActivities[2].text, hours:9, tag: dayActivities[2].category },
+          { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & feed', hours:10.5 }
+        ];
+      } else if (months <= 4) {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (4-5 oz)', hours:0 },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
-          { emoji:'😴', time:formatTime(wakeHour+2,wakeMin), desc:'Nap (60-90 min wake window)', hours:2 },
-          { emoji:'🍼', time:formatTime(wakeHour+3,wakeMin+30), desc:'Feed after nap (4-5 oz)', hours:3.5 },
+          { emoji:'😴', time:formatTime(wakeHour+2,wakeMin), desc:'Nap', hours:2 },
+          { emoji:'🍼', time:formatTime(wakeHour+3,wakeMin+30), desc:'Feed (4-5 oz)', hours:3.5 },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+4,wakeMin+30), desc: dayActivities[1].text, hours:4.5, tag: dayActivities[1].category },
           { emoji:'😴', time:formatTime(wakeHour+6,wakeMin), desc:'Afternoon nap', hours:6 },
-          { emoji:'🍼', time:formatTime(wakeHour+7,wakeMin+30), desc:'Evening feed (4-5 oz)', hours:7.5 },
+          { emoji:'🍼', time:formatTime(wakeHour+7,wakeMin+30), desc:'Feed (4-5 oz)', hours:7.5 },
           { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+8,wakeMin+30), desc: dayActivities[2].text, hours:8.5, tag: dayActivities[2].category },
-          { emoji:'🌙', time:formatTime(wakeHour+9,wakeMin+30), desc:'Bedtime routine & final feed', hours:9.5 }
+          { emoji:'🌙', time:formatTime(wakeHour+9,wakeMin+30), desc:'Bedtime routine & final feed (4-5 oz)', hours:9.5 }
         ];
       } else if (months <= 6) {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (5-7 oz)', hours:0 },
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (4-6 oz)', hours:0 },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
-          { emoji:'🍼', time:formatTime(wakeHour+2,wakeMin), desc:'Mid-morning feed', hours:2 },
+          { emoji:'🍼', time:formatTime(wakeHour+2,wakeMin), desc:'Feed (4-6 oz)', hours:2 },
           { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Morning nap', hours:3 },
-          { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:4.5, tag:'Nutrition' },
+          { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food + ' + milk', hours:4.5, tag:'Nutrition' },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin+30), desc: dayActivities[1].text, hours:5.5, tag: dayActivities[1].category },
-          { emoji:'🍼', time:formatTime(wakeHour+7,wakeMin), desc:'Afternoon feed', hours:7 },
+          { emoji:'🍼', time:formatTime(wakeHour+7,wakeMin), desc:'Feed (4-6 oz)', hours:7 },
           { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+8,wakeMin), desc: dayActivities[2].text, hours:8, tag: dayActivities[2].category },
-          { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & final feed', hours:10.5 }
+          { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & final feed (4-6 oz)', hours:10.5 }
         ];
       } else if (months <= 12) {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: ' + dayMeals.breakfast.food, hours:0, tag:'Nutrition' },
-          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin+30), desc: dayActivities[0].text, hours:1.5, tag: dayActivities[0].category },
-          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Morning nap', hours:3 },
-          { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:4.5, tag:'Nutrition' },
-          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin+30), desc: dayActivities[1].text, hours:5.5, tag: dayActivities[1].category },
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & milk (6-8 oz)', hours:0 },
+          { emoji:'🥣', time:formatTime(wakeHour+1,wakeMin), desc:'Breakfast: ' + dayMeals.breakfast.food, hours:1, tag:'Nutrition' },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+2,wakeMin+30), desc: dayActivities[0].text, hours:2.5, tag: dayActivities[0].category },
+          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin+30), desc:'Morning nap', hours:3.5 },
+          { emoji:'🍼', time:formatTime(wakeHour+4,wakeMin+30), desc:'Milk (6-8 oz)', hours:4.5 },
+          { emoji:'🥣', time:formatTime(wakeHour+5,wakeMin), desc:'Lunch: ' + dayMeals.lunch.food, hours:5, tag:'Nutrition' },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+6,wakeMin), desc: dayActivities[1].text, hours:6, tag: dayActivities[1].category },
           { emoji:'🍎', time:formatTime(wakeHour+7,wakeMin), desc:'Snack: ' + dayMeals.snack.food, hours:7, tag:'Nutrition' },
           { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+8,wakeMin), desc: dayActivities[2].text, hours:8, tag: dayActivities[2].category },
-          { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin+30), desc:'Dinner: ' + dayMeals.dinner.food, hours:9.5, tag:'Nutrition' },
+          { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food, hours:9, tag:'Nutrition' },
+          { emoji:'🍼', time:formatTime(wakeHour+10,wakeMin), desc:'Bedtime milk (6-8 oz)', hours:10 },
           { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine', hours:10.5 }
         ];
       } else {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: ' + dayMeals.breakfast.food, hours:0, tag:'Nutrition' },
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: ' + dayMeals.breakfast.food + ' + milk (6-8 oz)', hours:0, tag:'Nutrition' },
           { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin+30), desc: dayActivities[0].text, hours:1.5, tag: dayActivities[0].category },
           { emoji:'🍎', time:formatTime(wakeHour+3,wakeMin), desc:'Snack: ' + dayMeals.snack.food, hours:3, tag:'Nutrition' },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+3,wakeMin+30), desc: dayActivities[1].text, hours:3.5, tag: dayActivities[1].category },
-          { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:4.5, tag:'Nutrition' },
+          { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food + ' + milk (6-8 oz)', hours:4.5, tag:'Nutrition' },
           { emoji:'😴', time:formatTime(wakeHour+5,wakeMin+30), desc:'Quiet time / nap', hours:5.5 },
           { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[2].text, hours:7, tag: dayActivities[2].category },
-          { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food, hours:9, tag:'Nutrition' },
+          { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food + ' + milk (6-8 oz)', hours:9, tag:'Nutrition' },
           { emoji:'🧸', time:formatTime(wakeHour+10,wakeMin), desc:'Free play & bonding time', hours:10 },
           { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
         ];
@@ -2003,21 +2031,57 @@
 
     // === FEEDING GUIDE ===
     const foodGuide = {
-      '0-4': {
-        title: '0–4 Months (Milk Only)',
-        note: 'Only breast milk or formula. No solid foods yet.',
+      '0-1': {
+        title: '0–1 Week (Newborn)',
+        note: 'Tiny stomach! Feed on demand, guided by hunger cues. 8–12 feedings per day.',
         foods: [
-          { emoji:'🍼', name:'Breast Milk / Formula', desc:'On demand, 8-12 times per day' }
+          { emoji:'🍼', name:'Breast Milk / Formula', desc:'1–2 oz per feeding, every 2–3 hours (including overnight)' }
         ],
         schedule: [
-          { time:'Every 2-3 hrs', emoji:'🍼', action:'Feed breast milk or formula' },
+          { time:'Every 2-3 hrs', emoji:'🍼', action:'Feed 1–2 oz breast milk or formula' },
           { time:'On demand', emoji:'😴', action:'Sleep after feeding' },
-          { time:'Every 2-3 hrs', emoji:'👶', action:'Diaper change after feeding' }
+          { time:'After each feed', emoji:'👶', action:'Diaper change & burp' }
+        ]
+      },
+      '1-4': {
+        title: '1–4 Weeks (Newborn)',
+        note: 'Stomach growing! Feed every 2–3 hours. 16–24 oz per day total.',
+        foods: [
+          { emoji:'🍼', name:'Breast Milk / Formula', desc:'2–3 oz per feeding, every 2–3 hours' }
+        ],
+        schedule: [
+          { time:'Every 2-3 hrs', emoji:'🍼', action:'Feed 2–3 oz breast milk or formula' },
+          { time:'On demand', emoji:'😴', action:'Sleep after feeding' },
+          { time:'After each feed', emoji:'👶', action:'Diaper change & burp' }
+        ]
+      },
+      '1-2': {
+        title: '1–2 Months',
+        note: 'More predictable feedings. 18–32 oz per day. Longer stretches at night.',
+        foods: [
+          { emoji:'🍼', name:'Breast Milk / Formula', desc:'3–4 oz per feeding, every 3–4 hours' }
+        ],
+        schedule: [
+          { time:'Every 3-4 hrs', emoji:'🍼', action:'Feed 3–4 oz breast milk or formula' },
+          { time:'On demand', emoji:'😴', action:'Sleep after feeding' },
+          { time:'After each feed', emoji:'👶', action:'Diaper change & burp' }
+        ]
+      },
+      '2-4': {
+        title: '2–4 Months',
+        note: 'Growing fast! 24–32 oz per day. Feedings more spread out.',
+        foods: [
+          { emoji:'🍼', name:'Breast Milk / Formula', desc:'4–5 oz per feeding, every 3–4 hours' }
+        ],
+        schedule: [
+          { time:'Every 3-4 hrs', emoji:'🍼', action:'Feed 4–5 oz breast milk or formula' },
+          { time:'On demand', emoji:'😴', action:'Sleep after feeding' },
+          { time:'After each feed', emoji:'👶', action:'Diaper change & burp' }
         ]
       },
       '4-6': {
         title: '4–6 Months (Starting Solids)',
-        note: 'Start with single-ingredient purees. Introduce one food at a time, wait 3 days before new food.',
+        note: 'Start with single-ingredient purees. Introduce one food at a time, wait 3 days before new food. Still 24–32 oz milk per day.',
         foods: [
           { emoji:'🍌', name:'Banana Puree', desc:'Mash or blend. Rich in potassium.' },
           { emoji:'🍠', name:'Sweet Potato', desc:'Steam and mash. High in Vitamin A.' },
@@ -2029,17 +2093,17 @@
           { emoji:'🥣', name:'Rice Cereal', desc:'Mix with milk. Iron-fortified first food.' }
         ],
         schedule: [
-          { time:'7:00 AM', emoji:'🍼', action:'Breast milk / Formula' },
-          { time:'10:00 AM', emoji:'🥣', action:'Single puree (1-2 tbsp) + milk' },
-          { time:'1:00 PM', emoji:'🍼', action:'Breast milk / Formula' },
-          { time:'4:00 PM', emoji:'🥣', action:'Different puree (1-2 tbsp) + milk' },
-          { time:'7:00 PM', emoji:'🍼', action:'Breast milk / Formula' },
-          { time:'10:00 PM', emoji:'🍼', action:'Bedtime feed' }
+          { time:'7:00 AM', emoji:'🍼', action:'Breast milk / Formula (4–6 oz)' },
+          { time:'10:00 AM', emoji:'🥣', action:'Single puree (1–2 tbsp) + milk' },
+          { time:'1:00 PM', emoji:'🍼', action:'Breast milk / Formula (4–6 oz)' },
+          { time:'4:00 PM', emoji:'🥣', action:'Different puree (1–2 tbsp) + milk' },
+          { time:'7:00 PM', emoji:'🍼', action:'Breast milk / Formula (4–6 oz)' },
+          { time:'10:00 PM', emoji:'🍼', action:'Bedtime feed (4–6 oz)' }
         ]
       },
       '6-8': {
         title: '6–8 Months (More Textures)',
-        note: 'Introduce thicker textures, soft finger foods, and combinations. Start cup drinking.',
+        note: 'Introduce thicker textures, soft finger foods, and combinations. Start cup drinking. Milk 4–5 times per day (6–8 oz each).',
         foods: [
           { emoji:'🍌', name:'Soft Banana Chunks', desc:'Finger food. Let baby self-feed.' },
           { emoji:'🧀', name:'Cheese (soft)', desc:'Small cubes. Calcium for bones.' },
@@ -2053,18 +2117,18 @@
           { emoji:'🥣', name:'Oatmeal', desc:'Mixed with fruit. Iron-rich breakfast.' }
         ],
         schedule: [
-          { time:'7:00 AM', emoji:'🍼', action:'Breast milk / Formula' },
+          { time:'7:00 AM', emoji:'🍼', action:'Milk (6–8 oz)' },
           { time:'8:00 AM', emoji:'🥣', action:'Oatmeal or cereal + fruit' },
-          { time:'10:30 AM', emoji:'🍼', action:'Milk' },
+          { time:'10:30 AM', emoji:'🍼', action:'Milk (6–8 oz)' },
           { time:'12:00 PM', emoji:'🍗', action:'Lunch: protein + veggie + grain' },
-          { time:'3:00 PM', emoji:'🍼', action:'Milk + small snack' },
+          { time:'3:00 PM', emoji:'🍼', action:'Milk (6–8 oz) + small snack' },
           { time:'6:00 PM', emoji:'🍌', action:'Dinner: soft foods' },
-          { time:'7:00 PM', emoji:'🍼', action:'Bedtime milk' }
+          { time:'7:00 PM', emoji:'🍼', action:'Bedtime milk (6–8 oz)' }
         ]
       },
       '8-12': {
         title: '8–12 Months (More Variety)',
-        note: 'Three meals a day + snacks. Encourage self-feeding. Most textures OK.',
+        note: 'Three meals a day + snacks. Encourage self-feeding. Most textures OK. Milk 4–5 times per day (6–8 oz each).',
         foods: [
           { emoji:'🍝', name:'Pasta Shapes', desc:'Cooked soft. Fun for baby to grab.' },
           { emoji:'🌮', name:'Soft Tacos/Quesadilla', desc:'Torn into small pieces.' },
@@ -2076,20 +2140,20 @@
           { emoji:'🍖', name:'Ground Meat', desc:'Well-cooked. Iron-rich.' }
         ],
         schedule: [
-          { time:'7:00 AM', emoji:'🍼', action:'Milk' },
+          { time:'7:00 AM', emoji:'🍼', action:'Milk (6–8 oz)' },
           { time:'8:00 AM', emoji:'🥣', action:'Breakfast: egg + toast + fruit' },
           { time:'10:30 AM', emoji:'🫐', action:'Snack: soft fruit + cheese' },
           { time:'12:00 PM', emoji:'🍝', action:'Lunch: grain + protein + veggie' },
-          { time:'3:00 PM', emoji:'🍼', action:'Milk + snack' },
+          { time:'3:00 PM', emoji:'🍼', action:'Milk (6–8 oz) + snack' },
           { time:'6:00 PM', emoji:'🍗', action:'Dinner: protein + starch + veggie' },
-          { time:'7:30 PM', emoji:'🍼', action:'Bedtime milk' }
+          { time:'7:30 PM', emoji:'🍼', action:'Bedtime milk (6–8 oz)' }
         ]
       },
       '12+': {
         title: '12+ Months (Toddler Foods)',
-        note: 'Family meals! Whole milk. Most foods are safe. Cut grapes/choke hazards.',
+        note: 'Family meals! Whole milk. Most foods are safe. Cut grapes/choke hazards. 16–24 oz whole milk per day.',
         foods: [
-          { emoji:'🥛', name:'Whole Milk', desc:'Switch from formula. 16-24 oz/day.' },
+          { emoji:'🥛', name:'Whole Milk', desc:'Switch from formula. 16–24 oz/day.' },
           { emoji:'🍳', name:'Full Eggs', desc:'Any style. Great protein.' },
           { emoji:'🥪', name:'Sandwich Strips', desc:'PB&J or cream cheese.' },
           { emoji:'🌮', name:'Mini Burritos', desc:'Rice, beans, cheese in tortilla.' },
@@ -2099,11 +2163,11 @@
           { emoji:'🥜', name:'Nut Butters', desc:'On toast or celery. Allergy intro.' }
         ],
         schedule: [
-          { time:'7:00 AM', emoji:'🥣', action:'Breakfast: cereal + fruit + milk' },
+          { time:'7:00 AM', emoji:'🥣', action:'Breakfast: cereal + fruit + milk (6–8 oz)' },
           { time:'10:00 AM', emoji:'🍌', action:'Morning snack' },
-          { time:'12:00 PM', emoji:'🌮', action:'Lunch: sandwich + veggies + milk' },
+          { time:'12:00 PM', emoji:'🌮', action:'Lunch: sandwich + veggies + milk (6–8 oz)' },
           { time:'3:00 PM', emoji:'🍦', action:'Afternoon snack: yogurt + fruit' },
-          { time:'6:00 PM', emoji:'🍽️', action:'Dinner: family meal + milk' }
+          { time:'6:00 PM', emoji:'🍽️', action:'Dinner: family meal + milk (6–8 oz)' }
         ]
       }
     };
@@ -2195,10 +2259,21 @@
       return Math.max(0, m);
     }
 
+    function getBabyAgeWeeks() {
+      if (!baby || !baby.birthdate) return 0;
+      const b = new Date(baby.birthdate);
+      const n = new Date();
+      const days = Math.floor((n - b) / (1000*60*60*24));
+      return Math.max(0, Math.floor(days / 7));
+    }
+
     function updateFeedingGuide() {
       const months = getBabyAgeMonths();
       let guide;
-      if (months < 4) guide = foodGuide['0-4'];
+      if (months < 1) guide = foodGuide['0-1'];
+      else if (months < 4 && getBabyAgeWeeks() < 4) guide = foodGuide['1-4'];
+      else if (months < 2) guide = foodGuide['1-2'];
+      else if (months < 4) guide = foodGuide['2-4'];
       else if (months < 6) guide = foodGuide['4-6'];
       else if (months < 8) guide = foodGuide['6-8'];
       else if (months < 12) guide = foodGuide['8-12'];
@@ -2264,11 +2339,52 @@
       document.getElementById('napReminderOn').checked = scheduleSettings.napOn;
       toggleFeedingReminderUI();
       toggleNapReminderUI();
+      buildFeedIntervalButtons();
       buildTimeInputs('feedingTimes', scheduleSettings.feedingTimes, 'feed');
       buildTimeInputs('napTimes', scheduleSettings.napTimes, 'nap');
       updateActiveReminders();
       updateNextReminderText('feeding');
       updateNextReminderText('nap');
+    }
+
+    function buildFeedIntervalButtons() {
+      const months = getBabyAgeMonths();
+      const weeks = getBabyAgeWeeks();
+      let options, suggested, suggestion;
+      if (weeks < 1) {
+        options = [2];
+        suggested = 2;
+        suggestion = 'Newborns (0–1 week): Feed every 2–3 hours. 1–2 oz per feeding.';
+      } else if (months < 1) {
+        options = [2, 3];
+        suggested = 2;
+        suggestion = '1–4 weeks: Feed every 2–3 hours. 2–3 oz per feeding. 16–24 oz/day.';
+      } else if (months < 2) {
+        options = [3, 4];
+        suggested = 3;
+        suggestion = '1–2 months: Feed every 3–4 hours. 3–4 oz per feeding. 18–32 oz/day.';
+      } else if (months < 4) {
+        options = [3, 4];
+        suggested = 4;
+        suggestion = '2–4 months: Feed every 3–4 hours. 4–5 oz per feeding. 24–32 oz/day.';
+      } else if (months < 6) {
+        options = [3, 4];
+        suggested = 4;
+        suggestion = '4–6 months: Feed every 3–4 hours. 4–6 oz milk + 1–2 tbsp solids per meal.';
+      } else if (months < 12) {
+        options = [4, 5, 6];
+        suggested = 5;
+        suggestion = '6–12 months: Feed 4–5 times/day. 6–8 oz milk + 3 meals of solids.';
+      } else {
+        options = [5, 6];
+        suggested = 6;
+        suggestion = '12+ months: Feed 4–5 times/day. 6–8 oz whole milk. 16–24 oz/day total.';
+      }
+      document.getElementById('feedingAgeSuggestion').textContent = '💡 ' + suggestion;
+      const el = document.getElementById('feedIntervalBtns');
+      el.innerHTML = options.map(h =>
+        '<button class="btn-hour' + (h === suggested ? ' btn-active' : '') + '" onclick="setFeedInterval(' + h + ',this)">' + h + ' hrs</button>'
+      ).join('') + '<button class="btn-hour" onclick="setFeedInterval(0,this)">Custom</button>';
     }
 
     function toggleFeedingReminder() {
