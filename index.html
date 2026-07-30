@@ -919,6 +919,7 @@
     let selectedFeedingType = 'bottle';
     let selectedDiaperType = 'wet';
     let selectedDurationField = '';
+    let pendingChildPhoto = null;
 
     const milestones = [
       // 0-3 months
@@ -1809,7 +1810,6 @@
 
     // === MULTIPLE CHILDREN ===
     let children = JSON.parse(localStorage.getItem('children') || '[]');
-    let pendingChildPhoto = null;
 
     function previewChildPhoto(input) {
       if (input.files && input.files[0]) {
