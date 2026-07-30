@@ -1181,46 +1181,50 @@
       let items = [];
       if (months <= 3) {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & morning feed (breastmilk/formula 4-5 oz)', hours:0 },
-          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour,wakeMin+30), desc: dayActivities[0].text, hours:0.5, tag: dayActivities[0].category },
-          { emoji:'😴', time:formatTime(wakeHour+1,wakeMin+30), desc:'Nap (60-90 min wake window)', hours:1.5 },
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (4-5 oz)', hours:0 },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
+          { emoji:'😴', time:formatTime(wakeHour+2,wakeMin), desc:'Nap (60-90 min wake window)', hours:2 },
           { emoji:'🍼', time:formatTime(wakeHour+3,wakeMin+30), desc:'Feed after nap (4-5 oz)', hours:3.5 },
-          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin), desc: dayActivities[1].text, hours:5, tag: dayActivities[1].category },
-          { emoji:'🍼', time:formatTime(wakeHour+6,wakeMin+30), desc:'Afternoon feed', hours:6.5 },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+4,wakeMin+30), desc: dayActivities[1].text, hours:4.5, tag: dayActivities[1].category },
+          { emoji:'😴', time:formatTime(wakeHour+6,wakeMin), desc:'Afternoon nap', hours:6 },
+          { emoji:'🍼', time:formatTime(wakeHour+7,wakeMin+30), desc:'Evening feed (4-5 oz)', hours:7.5 },
+          { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+8,wakeMin+30), desc: dayActivities[2].text, hours:8.5, tag: dayActivities[2].category },
           { emoji:'🌙', time:formatTime(wakeHour+9,wakeMin+30), desc:'Bedtime routine & final feed', hours:9.5 }
         ];
       } else if (months <= 6) {
         items = [
-          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & morning feed (5-7 oz)', hours:0 },
-          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour,wakeMin+30), desc: dayActivities[0].text, hours:0.5, tag: dayActivities[0].category },
-          { emoji: dayMeals.lunch.emoji, time:formatTime(wakeHour+2,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:2.5, tag:'Nutrition' },
-          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin+30), desc:'Morning nap (1.5-2 hr wake window)', hours:3.5 },
-          { emoji:'🍼', time:formatTime(wakeHour+5,wakeMin+30), desc:'Afternoon milk feed', hours:5.5 },
-          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+6,wakeMin+30), desc: dayActivities[1].text, hours:6.5, tag: dayActivities[1].category },
-          { emoji: dayMeals.snack.emoji, time:formatTime(wakeHour+8,wakeMin+30), desc:'Snack: ' + dayMeals.snack.food, hours:8.5, tag:'Nutrition' },
+          { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & feed (5-7 oz)', hours:0 },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
+          { emoji:'🍼', time:formatTime(wakeHour+2,wakeMin), desc:'Mid-morning feed', hours:2 },
+          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Morning nap', hours:3 },
+          { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:4.5, tag:'Nutrition' },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin+30), desc: dayActivities[1].text, hours:5.5, tag: dayActivities[1].category },
+          { emoji:'🍼', time:formatTime(wakeHour+7,wakeMin), desc:'Afternoon feed', hours:7 },
+          { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+8,wakeMin), desc: dayActivities[2].text, hours:8, tag: dayActivities[2].category },
           { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine & final feed', hours:10.5 }
         ];
       } else if (months <= 12) {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: ' + dayMeals.breakfast.food, hours:0, tag:'Nutrition' },
-          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour,wakeMin+30), desc: dayActivities[0].text, hours:0.5, tag: dayActivities[0].category },
-          { emoji:'😴', time:formatTime(wakeHour+2,wakeMin+30), desc:'Morning nap window', hours:2.5 },
-          { emoji: dayMeals.lunch.emoji, time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:4.5, tag:'Nutrition' },
-          { emoji: dayMeals.snack.emoji, time:formatTime(wakeHour+6,wakeMin), desc:'Snack: ' + dayMeals.snack.food, hours:6, tag:'Nutrition' },
-          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[1].text, hours:7, tag: dayActivities[1].category },
-          { emoji: dayMeals.dinner.emoji, time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food, hours:9, tag:'Nutrition' },
-          { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin+30), desc: dayActivities[0].text, hours:1.5, tag: dayActivities[0].category },
+          { emoji:'😴', time:formatTime(wakeHour+3,wakeMin), desc:'Morning nap', hours:3 },
+          { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:4.5, tag:'Nutrition' },
+          { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+5,wakeMin+30), desc: dayActivities[1].text, hours:5.5, tag: dayActivities[1].category },
+          { emoji:'🍎', time:formatTime(wakeHour+7,wakeMin), desc:'Snack: ' + dayMeals.snack.food, hours:7, tag:'Nutrition' },
+          { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+8,wakeMin), desc: dayActivities[2].text, hours:8, tag: dayActivities[2].category },
+          { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin+30), desc:'Dinner: ' + dayMeals.dinner.food, hours:9.5, tag:'Nutrition' },
+          { emoji:'🌙', time:formatTime(wakeHour+10,wakeMin+30), desc:'Bedtime routine', hours:10.5 }
         ];
       } else {
         items = [
           { emoji:'🌅', time:formatTime(wakeHour,wakeMin), desc:'Wake up & breakfast: ' + dayMeals.breakfast.food, hours:0, tag:'Nutrition' },
-          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin), desc: dayActivities[0].text, hours:1, tag: dayActivities[0].category },
-          { emoji: dayMeals.snack.emoji, time:formatTime(wakeHour+2,wakeMin+30), desc:'Snack: ' + dayMeals.snack.food, hours:2.5, tag:'Nutrition' },
+          { emoji: dayActivities[0].emoji, time:formatTime(wakeHour+1,wakeMin+30), desc: dayActivities[0].text, hours:1.5, tag: dayActivities[0].category },
+          { emoji:'🍎', time:formatTime(wakeHour+3,wakeMin), desc:'Snack: ' + dayMeals.snack.food, hours:3, tag:'Nutrition' },
           { emoji: dayActivities[1].emoji, time:formatTime(wakeHour+3,wakeMin+30), desc: dayActivities[1].text, hours:3.5, tag: dayActivities[1].category },
-          { emoji: dayMeals.lunch.emoji, time:formatTime(wakeHour+4,wakeMin), desc:'Lunch: ' + dayMeals.lunch.food, hours:4, tag:'Nutrition' },
-          { emoji:'😴', time:formatTime(wakeHour+5,wakeMin), desc:'Quiet time / nap', hours:5 },
+          { emoji:'🥣', time:formatTime(wakeHour+4,wakeMin+30), desc:'Lunch: ' + dayMeals.lunch.food, hours:4.5, tag:'Nutrition' },
+          { emoji:'😴', time:formatTime(wakeHour+5,wakeMin+30), desc:'Quiet time / nap', hours:5.5 },
           { emoji: dayActivities[2].emoji, time:formatTime(wakeHour+7,wakeMin), desc: dayActivities[2].text, hours:7, tag: dayActivities[2].category },
-          { emoji: dayMeals.dinner.emoji, time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food, hours:9, tag:'Nutrition' },
+          { emoji:'🍲', time:formatTime(wakeHour+9,wakeMin), desc:'Dinner: ' + dayMeals.dinner.food, hours:9, tag:'Nutrition' },
           { emoji:'🧸', time:formatTime(wakeHour+10,wakeMin), desc:'Free play & bonding time', hours:10 },
           { emoji:'🌙', time:formatTime(wakeHour+11,wakeMin), desc:'Bedtime routine', hours:11 }
         ];
